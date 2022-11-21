@@ -1,0 +1,90 @@
+version: "3.5"
+services:
+    tor:
+        image: "arulrajnet/torprivoxy:latest"
+        container_name: tor-dev
+        
+        ports:
+            - 8118:8118 
+            - 9050:9050 
+            - 9051:9051
+        restart: always  
+        networks:
+            - dev      
+    #db:
+    #    image: mariadb
+    #    restart: always
+    #    environment:
+    #        - MARIADB_USER
+    #        - MARIADB_PASSWORD
+    #        - MARIADB_ROOT_PASSWORD
+    #        - MYSQL_TCP_PORT
+    #        - MYSQL_UNIX_PORT
+    #
+    #
+    #    ports:
+    #        - 3306:3306
+    #adminer:
+    #    image: adminer
+    #    restart: always
+    #    ports:
+    #    - 8080:8080
+
+    redis:
+        image: "redislabs/redisearch"
+        container_name: redis-dev
+        ports:
+            - 3679:3679
+        networks:
+            - dev    
+    spider-dev:
+        image: "hudsonwilde/qwiket-server-dev"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        ports:
+            - 3202:3202
+            - 9229:9229
+        build:
+            context: .
+            dockerfile: dev.Dockerfile
+        container_name: qwiket-server-dev
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            
+        env_file:
+            - /home/nick/spider2/qwiket-server-dev.env
+        restart: unless-stopped
+        networks:
+            - dev
+    lake-spider-dev:
+        image: "hudsonwilde/lake-server-dev"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        ports:
+            - 3203:3202
+            - 9230:9229
+        build:
+            context: .
+            dockerfile: dev.Dockerfile
+        container_name: lake-server-dev
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            
+        env_file:
+            - /home/nick/spider2/lake-server-dev.env
+        restart: unless-stopped
+        networks:
+            - dev        
+networks:
+  dev:
+      name: dev

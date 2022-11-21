@@ -1,0 +1,63 @@
+version: "3.5"
+services:
+    tor:
+        image: "arulrajnet/torprivoxy:latest"
+        container_name: tor
+        ports:
+            - 8118:8118 
+            - 9050:9050 
+            - 9051:9051
+        restart: always      
+    lake-autofeed-prod:
+        image: "hudsonwilde/lake-server-prod"
+        #stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+        ports:
+            - 3205:3202
+            - 9232:9229
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: lake-autofeed-prod
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - AUTO_FEED2022=1
+            
+        env_file:
+            - /home/nick/spider2/lake-server-dev.env
+        restart: unless-stopped
+        networks:
+            - lake-prod
+    lake-out-prod:
+        image: "hudsonwilde/lake-server-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+        ports:
+            - 3204:3202
+            - 9231:9229
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: lake-out-prod
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - OUT2022=1
+            
+        env_file:
+            - /home/nick/spider2/lake-server-dev.env
+        restart: unless-stopped
+        networks:
+            - lake-prod       
+networks:
+  lake-prod:
+      name: lake-prod

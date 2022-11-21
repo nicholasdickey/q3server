@@ -1,0 +1,30 @@
+version: "3.5"
+services:
+       q3api-dev:
+        image: "hudsonwilde/q3api-dev"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        ports:
+            - 3000:3000
+            - 9029:9229
+        build:
+            context: .
+            dockerfile: dev.Dockerfile
+        container_name: q3api-dev
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            
+        env_file:
+            - /home/nick/q3api/q3api-dev.env
+        restart: unless-stopped
+        networks:
+            - q3api-dev
+          
+networks:
+  q3api-dev:
+      name: q3api-dev

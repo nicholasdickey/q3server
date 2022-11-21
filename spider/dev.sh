@@ -1,0 +1,1 @@
+ DB_USER=root DB_PASSWORD=nudela2008 MYSQL_TCP_PORT=3306 MYSQL_UNIX_PORT=3306 docker-compose -f dev-docker-compose.yml up -d 

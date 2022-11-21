@@ -1,0 +1,27 @@
+{
+  "name": "spider2",
+  "type": "module",
+  "version": "2.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@uploadcare/upload-client": "^3.1.1",
+    "chalk": "^5.0.1",
+    "cloudscraper": "^4.6.0",
+    "date-fns": "^2.28.0",
+    "fetch-everywhere": "^1.0.5",
+    "fs": "^0.0.1-security",
+    "ioredis": "^5.2.4",
+    "js-string-escape": "^1.0.1",
+    "mysql": "^2.18.1",
+    "node-fetch": "^3.2.4",
+    "redis": "^3.0.2",
+    "redis-redisearch": "^1.0.1",
+    "request": "^2.88.2",
+    "rss-parser": "^3.12.0",
+    "socks-proxy-agent": "^6.2.0",
+    "user-agents": "^1.0.1001",
+    "util": "^0.12.4",
+    "whacko": "^0.19.1"
+  }
+}

@@ -1,0 +1,26 @@
+{
+    "@context": "http://schema.org",
+    "@type": "NewsArticle",
+    "headline": "MARSCHALL: ‘Bros’ Reveals the Sad Reality of Being Politically Queer","datePublished": "2022-10-11T09:10-0700",
+    "dateModified": "2022-10-14T07:38-0700",
+    "author": "humanevents.com",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "humanevents.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "humanevents.com",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "https://structurecms-production-psyclone.netdna-ssl.com/client_assets/humanevents_com/media/picture/62e4/1eed/79d1/5e0e/6b5a/e3ae/original_0-02-01-1e86b0bf2598071c8f81f1f9b8544447fc6830e51befa07e916eb2a26afa0b42_1c6dadb763e7aa.png?1659117293"
+        }
+    },
+    "image": {
+        "@type": "ImageObject",
+        "url": "https://structurecms-production-psyclone.netdna-ssl.com/client_assets/humanevents_com/media/picture/6345/94fa/ba81/235b/22bc/f043/article_kylo-FPZ8Lnn5Ws8-unsplash-2.jpg?1665504505",
+        "width": 800,
+        "height": 450
+    },
+    "mainEntityOfPage": "If gay people are truly equal to straight people, then their movies will sometimes be bad as well."
+}
