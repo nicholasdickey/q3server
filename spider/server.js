@@ -16,23 +16,16 @@ redisearch(redis);
 //import http from "http"
 //import next from "next"
 
+
 import feedActions from "./lib/actions/feedActions.js"
 const {
     runFeedsAction,
     runDisqus,
     runOutputQueue,
     runPreMigrate,
+    runLongMigrate,
     runIndexQwikets,
 } = feedActions
-import feedActions2022 from "./lib/actions/feedActions2022.js"
-const {
-    runFeedsAction:runFeedsAction2022,
-    runDisqus:runDisqus2022,
-    runOutputQueue:runOutputQueue2022,
-    runPreMigrate:runPreMigrate2022,
-    runLongMigrate:runLongMigrate2022,
-    runIndexQwikets:runIndexQwikets2022,
-} = feedActions2022
 import { l, chalk, allowLog, sleep,js } from "./lib/common.js"
 //import { loadCDN } from "./cdn.mjs"
 //import { init as apiServerInit, end as apiServerEnd } from "./api-server.mjs"
@@ -74,7 +67,7 @@ if(process.env.FEED){
 if(process.env.FEED2022){
     allowLog()
     console.log("FEED2022")
-    await runFeedsAction2022({
+    await runFeedsAction({
         silo: 5, //process.env.PRE_MIGRATE ? 5 : 3,
         feedName:process.env.FEED2022,
         sessionid: "server.js",
@@ -93,7 +86,7 @@ if(process.env.FEED2022){
 if(process.env.OUT2022){
     allowLog()
     console.log("OUT2022")
-    await runOutputQueue2022({
+    await runOutputQueue({
         sessionid: "server.js",
         threadid: "server.js1",
         username: "server.js",
@@ -122,7 +115,7 @@ if (process.env.AUTO_FEED2022) {
     setTimeout(()=>{
         exit();
     },process.env.TIMEOUT);
-    await runFeedsAction2022({
+    await runFeedsAction({
         silo: 5, //process.env.PRE_MIGRATE ? 5 : 3,
         sessionid: "server.js",
         threadid: `server.js-${threadid1}`,
@@ -161,7 +154,7 @@ if (process.env.PRE_MIGRATE == 1) {
 }
 if (process.env.LONG_MIGRATE2022_51 == 1) {
     allowLog()
-   await  runLongMigrate2022({
+   await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
         threadid: "server.js11",
@@ -173,7 +166,7 @@ if (process.env.LONG_MIGRATE2022_51 == 1) {
 }
 if (process.env.LONG_MIGRATE2022_5 == 1) {
     allowLog()
-   await  runLongMigrate2022({
+   await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
         threadid: "server.js11",
@@ -185,7 +178,7 @@ if (process.env.LONG_MIGRATE2022_5 == 1) {
 }
 if (process.env.LONG_MIGRATE2022_3 == 1) {
     allowLog()
-   await  runLongMigrate2022({
+   await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
         threadid: "server.js11",
@@ -197,7 +190,7 @@ if (process.env.LONG_MIGRATE2022_3 == 1) {
 }
 if (process.env.LONG_MIGRATE2022_ == 1) {
     allowLog()
-   await  runLongMigrate2022({
+   await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
         threadid: "server.js11",
@@ -209,7 +202,7 @@ if (process.env.LONG_MIGRATE2022_ == 1) {
 }
 if (process.env.PRE_MIGRATE2022 == 1) {
     allowLog()
-    await runPreMigrate2022({
+    await runPreMigrate({
         //db only, two days
         sessionid: "server.js",
         threadid: "server.js11",
