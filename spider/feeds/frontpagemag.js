@@ -1,4 +1,4 @@
-import { l, chalk, microtime, allowLog,js } from "../common.js";
+import { l, chalk, microtime, allowLog,js } from "../lib/common.js";
 import parse from "date-fns/parse/index.js";
 function func({
     $,

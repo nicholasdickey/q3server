@@ -1,5 +1,5 @@
-import { l, chalk, microtime, allowLog, js } from "../common.js";
-import feedActions from "../actions/feedActions.js";
+import { l, chalk, microtime, allowLog, js } from "../lib/common.js";
+import feedActions from "../lib/actions/feedActions.js";
 const { postUrl } = feedActions;
 function func({
     $,

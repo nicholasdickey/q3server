@@ -1,4 +1,4 @@
-import { l, chalk, microtime, allowLog, js } from "../common.js";
+import { l, chalk, microtime, allowLog, js } from "../lib/common.js";
 
 function func({
     $,

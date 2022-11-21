@@ -6,14 +6,14 @@ import UserAgent from "user-agents"
 import pkg from "socks-proxy-agent"
 const { SocksProxyAgent } = pkg
 
-import { l, chalk, microtime, allowLog, js } from "./common.js"
+import { l, chalk, microtime, allowLog, js } from "./lib/common.js"
 import { promises as fs } from "fs"
 import jsStringEscape from "js-string-escape"
 //import iconv from "iconv-lite"
-import { dbLog } from "./db.js"
+import { dbLog } from "./lib/db.js"
 //import { promises } from "dns"
 l("starting TOR", `socks5h://tor:9050`)
-import { setCDN } from "./cdn.js"
+import { setCDN } from "./lib/cdn.js"
 import cloudscraper from "cloudscraper"
 let agent = null // = new SocksProxyAgent(`socks5h://${process.env.HOST}:9050`)
 //const notorAgent = new SocksProxyAgent(`socks5h://51.81.31.66:58371`);

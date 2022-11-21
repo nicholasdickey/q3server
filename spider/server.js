@@ -16,7 +16,7 @@ redisearch(redis);
 //import http from "http"
 //import next from "next"
 
-import feedActions from "./actions/feedActions.js"
+import feedActions from "./lib/actions/feedActions.js"
 const {
     runFeedsAction,
     runDisqus,
@@ -24,7 +24,7 @@ const {
     runPreMigrate,
     runIndexQwikets,
 } = feedActions
-import feedActions2022 from "./actions/feedActions2022.js"
+import feedActions2022 from "./lib/actions/feedActions2022.js"
 const {
     runFeedsAction:runFeedsAction2022,
     runDisqus:runDisqus2022,
@@ -33,7 +33,7 @@ const {
     runLongMigrate:runLongMigrate2022,
     runIndexQwikets:runIndexQwikets2022,
 } = feedActions2022
-import { l, chalk, allowLog, sleep,js } from "./common.js"
+import { l, chalk, allowLog, sleep,js } from "./lib/common.js"
 //import { loadCDN } from "./cdn.mjs"
 //import { init as apiServerInit, end as apiServerEnd } from "./api-server.mjs"
 //import { redis } from "./redis.mjs"

@@ -2,8 +2,8 @@ import dbQwiket from "../db/dbQwiket.js";
 
 import { dbLog, dbEnd } from "../db.js";
 
-import { redis } from "../redis.js";
-import { getRedisClient } from "../redis2022.js"
+import { redis } from "../../redis.js";
+//import { getRedisClient } from "../lib/redis.js"
 import { l, chalk, js } from "../common.js";
 const dbServerNameX1 = process.env.DB_HOST_PRIMARY;
 const dbServerNameX2 = process.env.DB_HOST_SECONDARY;

@@ -6,11 +6,11 @@ import dbFeed from "../db/dbFeed.js"
 import { dbLog, dbEnd, dbFetchLogByThreadid } from "../db.js"
 import { setCDN, deleteOldCDN, loadCDN } from "../cdn.js"
 //import { redis } from "../redis.js"
-import {getRedisClient} from "../redis2022.js"
+import { getRedisClient } from "../redis.js"
 import fs from "fs"
 //import { syncup as replicate } from "../replicate.js"
 import { l, chalk, sleep, js, microtime, allowLog } from "../common.js"
-import rules from "../rules.js"
+import rules from "../../rules.js"
 import UserAgent from "user-agents"
 import pkg from "socks-proxy-agent"
 const { SocksProxyAgent } = pkg
@@ -38,6 +38,13 @@ const redisPortSilo5X2 = process.env.REDIS_SILO5_PORT_X2
 
 const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
     try {
+        setTimeout(async () => {
+            l(chalk.magenta.bold("TIMOUT!!!!!!!!!!!!", tag, threadid))
+            const redis = await getRedisClient({});
+            await redis.set(`feed-break-thread-${slug}-${threadid}`, 1, 'EX',60000 );
+            await redis.quit();
+            // resolve(val)
+        }, process.env.FEED_TIMEOUT)
         const slug = tag
         const agent = new SocksProxyAgent(`socks5h://tor:9050`)
         console.log("FEED RUN:", slug, threadid);
@@ -73,9 +80,10 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
             l("fetchFeed failed")
             return result
         }
-
+        if (slug == 'fnc')
+            l('*******************************************************************************************')
         const feed = result.feed
-        l("feed started ", js({ feed }))
+        l("feed started ", js({ slug }))
         await dbLog({
             show: false,
             type: "FEED",
@@ -84,6 +92,18 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
             sessionid,
             username,
         })
+        if (process.env.LOGCRAWL == 1)
+            await dbFeed.logCrawl({
+                qwiket: {},
+                silo,
+                name: `feedActions:${slug}:silo:${silo}`,
+                action: `Feed:fetched`,
+                rule: slug,
+                threadid,
+                sessionid,
+                username,
+
+            })
         //   l(JSON.stringify({ feed }));
         if (feed.rss) {
             const rssFeeds = feed.rssFeeds
@@ -94,10 +114,10 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                     let rssFeed = rssFeeds[i]
                     let { rss, active, slug: rssSlug } = rssFeed
 
-                    l("rssFeed:","notor=",notor,js({notor,rss, active,}), JSON.stringify({ rssFeed }));
+                    //  l("rssFeed:", "notor=", notor, js({ notor, rss, active, }), JSON.stringify({ rssFeed }));
                     if (active) {
                         let parser = new Parser({
-                            timeout: 24000,
+                            timeout: 124000,
                             //defaultRSS: 2.0,
                             requestOptions: notor ? {} : { agent },
                             headers: {
@@ -105,12 +125,12 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                     "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
                             },
                         })
-                        l(chalk.green("Parser",js(parser)))
+                        // l(chalk.green("Parser", js(parser)))
 
                         let rssFeed
                         try {
                             if (rss.indexOf("http") < 0) rss = `http://${rss}`
-                            l(9999,rss)
+                            //  l(9999, rss)
                             rssFeed = await parser.parseURL(rss)
                         } catch (x) {
                             l(
@@ -122,7 +142,7 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                 )
                             )
                         }
-                         l(chalk.blue("rss parsed", JSON.stringify(rssFeed)));
+                        // l(chalk.blue("rss parsed", JSON.stringify(rssFeed)));
                         if (rssFeed) console.log(rssFeed.title)
                         const items = rssFeed ? rssFeed.items : []
                         await dbLog({
@@ -135,6 +155,11 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                         })
                         for (var j = 0; j < items.length; j++) {
                             const item = items[j]
+                            if (slug == 'fnc')
+                                item.link = item.guid;
+                            //  l("rss item",js(item))
+                            if (!item.link)
+                                continue;
                             if (item.link.indexOf("http") < 0) continue
                             item.link = item.link.replace(
                                 "minx.cc",
@@ -146,55 +171,80 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                 item.title + ":" + item.link
                             );*/
 
-                           /**==>  let value = await redis.get({
-                                key,
-                                server: redisServerX1,
-                                port: redisPortX1,
-                                logContext: { sessionid, threadid, username },
-                            })*/
-                           // const redis=getRedisClient({server:redisServerX1,port:redisPortX1});
-                            const redis=getRedisClient({});
-                            redis.connect();
-                            let value= await redis.get(key);
-                            redis.disconnect();
+                            /**==>  let value = await redis.get({
+                                 key,
+                                 server: redisServerX1,
+                                 port: redisPortX1,
+                                 logContext: { sessionid, threadid, username },
+                             })*/
+                            if (process.env.LOGCRAWL == 1)
+                                await dbFeed.logCrawl({
+                                    qwiket: item,
+                                    silo,
+                                    name: `feedActions:${slug}:silo:${silo}`,
+                                    action: `Feed:got rss item`,
+                                    rule: slug,
+                                    threadid,
+                                    sessionid,
+                                    username,
+
+                                })
+                            const redis = await getRedisClient({});
+                            let stop = await redis.get(`feed-break-thread-${slug}-${threadid}`);
+                            l(chalk.magenta.bold("******************  GOT STOP", stop, slug, threadid))
+                            if (stop) {
+                                l(chalk.magenta.bold("******************  BREAKING", slug, threadid))
+                                return;
+                            };
+                            let value = await redis.get(key);
                             if (value == 1) {
-                                /*l(
+                                l(
                                     chalk.green.bold(
                                         "rss key less than an hour old, skipping"
                                     ),
                                     key,
                                     value
-                                );*/
+                                );
+                                if (process.env.LOGCRAWL == 1)
+                                    await dbFeed.logCrawl({
+                                        qwiket: {},
+                                        silo,
+                                        name: `feedActions:${slug}:silo:${silo}`,
+                                        action: `Feed:already running`,
+                                        rule: slug,
+                                        threadid,
+                                        sessionid,
+                                        username,
+
+                                    })
                                 continue
                             }
                             let avalue = "1"
-                            let expire = 120
+                            let expire = 600
                             l("setting redis", js({ key, avalue, expire }))
                             try {
-                                const redis=getRedisClient();
-                                redis.connect();
-                                await redis.set(key,avalue,{
-                                    EX:expire
 
-                                })
-                                redis.disconnect();
-                               /* await redis.set({
-                                    key,
-                                    value: avalue,
-                                    server: redisServerX1,
-                                    port: redisPortX1,
-                                    expire,
-                                    logContext: {
-                                        sessionid,
-                                        threadid,
-                                        username,
-                                    },
-                                })*/
+                                await redis.set(key, avalue, "EX", expire)
+
+                                /* await redis.set({
+                                     key,
+                                     value: avalue,
+                                     server: redisServerX1,
+                                     port: redisPortX1,
+                                     expire,
+                                     logContext: {
+                                         sessionid,
+                                         threadid,
+                                         username,
+                                     },
+                                 })*/
                             } catch (x) {
                                 l(chalk.red.bold("CATCH 14", x))
                             }
-
+                            redis.quit();
                             if (item.link) {
+                                if (slug == 'fnc')
+                                    l("call runUrl", rssSlug)
                                 let result = await runUrl({
                                     primaryTag: rssSlug,
                                     source: "rss",
@@ -235,7 +285,7 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                     logContext: { sessionid, threadid, username },
                 })
                 //33333 await dbEnd(threadid);
-                l("END RSS FEED ", js(feed))
+                l("END RSS FEED ", slug)
                 return
             }
         }
@@ -296,7 +346,7 @@ const postUrl = async ({ url, silo, tags, sessionid, threadid, username }) => {
             sessionid,
             threadid,
             username,
-            dbServerName: dbServerNameX1,
+
         })
         for (var i = 0; i < feeds.length; i++) {
             let subFeed = feeds[i]
@@ -316,7 +366,7 @@ const postUrl = async ({ url, silo, tags, sessionid, threadid, username }) => {
                 sessionid,
                 threadid,
                 username,
-                dbServerName: dbServerNameX1,
+
             })
             for (var i = 0; i < feeds.length; i++) {
                 let subFeed = feeds[i]
@@ -388,106 +438,107 @@ const runFeedUrl = async ({
     level,
 }) => {
     if (!level) level = 0
-    const redis=getRedisClient();
-    try{
-        const redis=getRedisClient();
-    console.log(
-        "runFeed entry",
-        js({ silo, primaryTag, rootUrl, level }),
-        threadid
-    )
-    await startRunning({
-        name: primaryTag,
-        silo,
-        logContext: { sessionid, threadid, username },
-    })
+    let redis;
     try {
-        let result = await runUrl({
-            primaryTag,
-            feed,
-            url: rootUrl,
+        redis = await getRedisClient({});
+        console.log(
+            "runFeed entry",
+            js({ silo, primaryTag, rootUrl, level }),
+            threadid
+        )
+        await startRunning({
+            redis,
+            name: primaryTag,
             silo,
-            source: "runFeedUrl",
-            tags,
-            sessionid,
-            threadid,
-            username,
+            logContext: { sessionid, threadid, username },
         })
-        // l(chalk.cyan(`RETURNED from runUrl ${JSON.stringify(result)}`));
-        if (result && result.childRefs) {
-            let ch = result.childRefs.map((p) => p.split("#")[0])
-            let childs = new Set(ch)
-            let childRefs = [...childs]
-            // l("has children", js(childRefs));
-            for (var i = 0; i < childRefs.length; i++) {
-                let running = await getRunning({
-                    name: primaryTag,
-                    silo,
-                    logContext: { sessionid, threadid, username },
-                })
-                if (running == 0) break
-                let childRef = childRefs[i]
-                let key = `spiderurl-${silo}-${childRef}`
-               
-             
-                let value=await redis.get(key);
-             
-
-              /*  let value = await redis.get({
-                    key,
-                    server: redisServerX1,
-                    port: redisPortX1,
-                    logContext: { sessionid, threadid, username },
-                })*/
-                if (!value) {
-                    let value = 1
-                    let expire = 600
-                    await redis.set({
-                        key,
-                        value,
-                        server: redisServerX1,
-                        port: redisPortX1,
-                        expire,
-                        logContext: { sessionid, threadid, username },
-                    })
-                    // l(chalk.green(">>> feed descending:", level + 1, childRef));
+        try {
+            let result = await runUrl({
+                primaryTag,
+                feed,
+                url: rootUrl,
+                silo,
+                source: "runFeedUrl",
+                tags,
+                sessionid,
+                threadid,
+                username,
+            })
+            // l(chalk.cyan(`RETURNED from runUrl ${JSON.stringify(result)}`));
+            if (result && result.childRefs) {
+                let ch = result.childRefs.map((p) => p.split("#")[0])
+                let childs = new Set(ch)
+                let childRefs = [...childs]
+                // l("has children", js(childRefs));
+                for (var i = 0; i < childRefs.length; i++) {
                     let running = await getRunning({
                         name: primaryTag,
                         silo,
                         logContext: { sessionid, threadid, username },
                     })
-                    //  l("running x:", running);
-                    if (running == 1) {
-                        // l("isRunning");
-                        if (level < 3)
-                            await runFeedUrl({
-                                primaryTag,
-                                feed,
-                                silo,
-                                rootUrl: childRef,
-                                sessionid,
-                                threadid,
-                                username,
-                                level: level + 1,
-                            })
-                        // l(chalk.blue("<<< feed back:", level + 1, childRef));
+                    if (running == 0) break
+                    let childRef = childRefs[i]
+                    let key = `spiderurl-${silo}-${childRef}`
+
+
+                    let value = await redis.get(key);
+
+
+                    /*  let value = await redis.get({
+                          key,
+                          server: redisServerX1,
+                          port: redisPortX1,
+                          logContext: { sessionid, threadid, username },
+                      })*/
+                    if (!value) {
+                        let value = 1
+                        let expire = 600
+                        await redis.set(
+                            key,
+                            value,
+                            { EX: expire }
+                        )
+                        // l(chalk.green(">>> feed descending:", level + 1, childRef));
+                        let running = await getRunning({
+                            redis,
+                            name: primaryTag,
+                            silo,
+                            logContext: { sessionid, threadid, username },
+                        })
+                        //  l("running x:", running);
+                        if (running == 1) {
+                            // l("isRunning");
+                            if (level < 3)
+                                await runFeedUrl({
+                                    primaryTag,
+                                    feed,
+                                    silo,
+                                    rootUrl: childRef,
+                                    sessionid,
+                                    threadid,
+                                    username,
+                                    level: level + 1,
+                                })
+                            // l(chalk.blue("<<< feed back:", level + 1, childRef));
+                        }
                     }
                 }
             }
+            //  console.log("runFeed exit", level, rootUrl);
+        } catch (x) {
+            l(chalk.red.bold("CATCH15", x))
         }
-        //  console.log("runFeed exit", level, rootUrl);
-    } catch (x) {
-        l(chalk.red.bold("CATCH15", x))
+        if (level == 0)
+            await stopRunning({
+                redis,
+                name: primaryTag,
+                silo,
+                logContext: { sessionid, threadid, username },
+            })
     }
-    if (level == 0)
-        await stopRunning({
-            name: primaryTag,
-            silo,
-            logContext: { sessionid, threadid, username },
-        })
-    }
-    finally{
-        await redis.quit();
+    finally {
+        if (redis)
+            await redis.quit();
     }
 }
 const runUrl = async ({
@@ -514,17 +565,29 @@ const runUrl = async ({
             sessionid,
             username,
         })
+        if (process.env.LOGCRAWL == 1)
+            await dbFeed.logCrawl({
+                qwiket: {url},
+                silo,
+                name: `feedActions:${primaryTag}:silo:${silo}`,
+                action: `Feed:runUrl`,
+                rule: primaryTag,
+                threadid,
+                sessionid,
+                username,
+
+            })
         let qwiket
-        /* l(
-             chalk.green.bold(
-                 "runUrl",
-                 js({ feed }),
-                 silo,
-                 url,
-                 primaryTag,
-                 index
-             )
-         );*/
+        l(
+            chalk.yellow.bold(
+                "runUrl",
+                // js({ feed }),
+                silo,
+                url,
+                primaryTag,
+                index
+            )
+        );
         index = index ? index : "sync"
         let logContext = {
             sessionid,
@@ -554,7 +617,7 @@ const runUrl = async ({
 
         // l(chalk.magenta.bold("feed:", js(feed)));
         let category_xid = feed["category_xid"]
-        l(chalk.magenta.bold("feed:", js(feed["slug"]), threadid))
+        l(chalk.magenta.bold("feed:", js(feed["slug"]), silo, threadid))
         // try {
         let { item, childRefs } = await rules({
             pageUrl: url,
@@ -570,7 +633,7 @@ const runUrl = async ({
         /*} catch (x) {
             l(chalk.red.bold(x));
         }*/
-        l("after rules")
+        l("after rules", silo)
 
         if (item && process.env.LOGCRAWL == 1)
             await dbFeed.logCrawl({
@@ -582,7 +645,7 @@ const runUrl = async ({
                 threadid,
                 sessionid,
                 username,
-                dbServerName: dbServerNameX1,
+
             })
         //l("RULE returned ", item, threadid);
         // l(chalk.green("GOT ITEM", JSON.stringify(item)));
@@ -591,12 +654,10 @@ const runUrl = async ({
             l(
                 chalk.green.bold(
                     "GOT ITEM VALID",
+                    silo,
                     item.url,
-                    threadid,
-                    js({
-                        dbServerNameX1,
-                        dbServerNameX2,
-                    })
+                    threadid
+
                 )
             )
             let result
@@ -611,10 +672,10 @@ const runUrl = async ({
                 sessionid,
                 threadid,
                 username,
-                dbServerName: dbServerNameX1,
+
             })
             if (check1.success && silo == 5) {
-                l(chalk.green.bold("checkUrl:", dbServerNameX1))
+                // l(chalk.green.bold("checkUrl5:", dbServerNameX1))
                 check1 = await dbQwiket.checkUrl({
                     input: { url: itemUrl, silo: 0 },
                     sessionid,
@@ -632,7 +693,7 @@ const runUrl = async ({
                     })
 
                     if (check1.success) {
-                        l(chalk.green.bold("checkUrl:", dbServerSilo5X1))
+                        //  l(chalk.green.bold("checkUrl:", dbServerSilo5X1))
                         check1 = await dbQwiket.checkUrl({
                             input: { url: itemUrl, silo: 5 },
                             sessionid,
@@ -640,31 +701,6 @@ const runUrl = async ({
                             username,
                             dbServerName: dbServerSilo5X1,
                         })
-                        if (check1.success) {
-                            l(chalk.green.bold("checkUrl:", dbServerSilo5X1))
-                            check1 = await dbQwiket.checkUrl({
-                                input: { url: itemUrl, silo: 0 },
-                                sessionid,
-                                threadid,
-                                username,
-                                dbServerName: dbServerSilo5X1,
-                            })
-                            if (check1.success) {
-                                l(
-                                    chalk.green.bold(
-                                        "checkUrl:",
-                                        dbServerSilo5X1
-                                    )
-                                )
-                                check1 = await dbQwiket.checkUrl({
-                                    input: { url: itemUrl, silo: 51 },
-                                    sessionid,
-                                    threadid,
-                                    username,
-                                    dbServerName: dbServerSilo5X1,
-                                })
-                            }
-                        }
                     }
                 }
             }
@@ -684,7 +720,7 @@ const runUrl = async ({
 
             //qwiket.slug = slug;
             if (check1.success /* && check2.success*/) {
-                l(chalk.green.bold("Q!QQ"))
+                //  l(chalk.green.bold("Q!QQ"))
                 qwiketid = await dbQwiket.generateQwiketSlug({
                     input: {
                         qwiket: { title: item.title },
@@ -701,9 +737,10 @@ const runUrl = async ({
                     silo == 5 &&
                     qwiket.title == (check1.title || check1.q.title) &&
                     qwiket.description ==
-                        (check1.description || check1.q.description) &&
+                    (check1.description || check1.q.description) &&
                     qwiket.author == (check1.author || check1.q.author)
                 ) {
+                    l(chalk.yellow.bold("QWIKET EXISTS"))
                     await dbLog({
                         show: false,
                         type: "QWIKET EXISTS",
@@ -714,25 +751,25 @@ const runUrl = async ({
                     })
                     return
                 }
-                await dbLog({
-                    show: false,
-                    type: "QWIKET EXISTS BC",
-                    body: JSON.stringify({
-                        title: { title1: check1.q.title, title: qwiket.title },
-                        description: {
-                            description1: check1.q.description,
-                            description: qwiket.description,
-                        },
-                        author: {
-                            author1: check1.q.author,
-                            author: qwiket.author,
-                        },
-                        slug: check1.slug,
-                    }),
-                    threadid,
-                    sessionid,
-                    username,
-                })
+                /* await dbLog({
+                     show: false,
+                     type: "QWIKET EXISTS BC",
+                     body: JSON.stringify({
+                         title: { title1: check1.q.title, title: qwiket.title },
+                         description: {
+                             description1: check1.q.description,
+                             description: qwiket.description,
+                         },
+                         author: {
+                             author1: check1.q.author,
+                             author: qwiket.author,
+                         },
+                         slug: check1.slug,
+                     }),
+                     threadid,
+                     sessionid,
+                     username,
+                 }) */
                 //  l(99992);
                 qwiket.slug = check1.slug
                 qwiketid = qwiket.slug
@@ -805,7 +842,7 @@ const runUrl = async ({
                     threadid,
                     sessionid,
                     username,
-                    dbServerName: dbServerNameX1,
+
                 })
             if (silo == 4) {
                 await pushOutputQwiket({
@@ -1027,16 +1064,24 @@ const pushOutputQwiket = async ({
             qwiket.date = qwiket.shared_time
             qwiket.sort = qwiket.shared_time
             qwiket.primary = 1
-            l(chalk.yellow.bold("SILO 5 PUSHING", js(qwiket)))
-            try {
-                await redis.lpush({
-                    server: process.env.REDIS_SILO5_SERVER_X1,
-                    port: process.env.REDIS_SILO5_PORT_X1,
+            l(chalk.yellow.bold("SILO 5 PUSHING" /*, js(qwiket)*/))
+            const redis = await getRedisClient({ server: process.env.REDIS_SILO5_SERVER_X, port: process.env.REDIS_SILO5_PORT_X, x: true });
 
-                    key: `items_output`,
-                    value: js(qwiket),
-                    logContext,
-                })
+            try {
+                /* await redis.lpush({
+                     server: process.env.REDIS_SILO5_SERVER_X1,
+                     port: process.env.REDIS_SILO5_PORT_X1,
+ 
+                     key: `items_output`,
+                     value: js(qwiket),
+                     logContext,
+                 })*/
+                l('redis.lpush')
+                await redis.lpush(
+                    `items_output`,
+                    js(qwiket)
+                )
+                l('after redis.lpush')
                 if (process.env.LOGCRAWL == 1)
                     await dbFeed.logCrawl({
                         qwiket: qwiket,
@@ -1047,49 +1092,30 @@ const pushOutputQwiket = async ({
                         threadid,
                         sessionid,
                         username,
-                        dbServerName: dbServerNameX1,
+
                     })
             } catch (x) {
                 l(chalk.red.bold("CATCH18", x))
                 await dbLog({
                     show: false,
                     type: "SILO5 ERROR",
-                    body: `Exception on lpush to ${process.env.REDIS_SILO5_SERVER_X1}:${process.env.REDIS_SILO5_PORT_X1}`,
+                    body: `Exception on lpush to ${process.env.REDIS_SILO5_SERVER_X}:${process.env.REDIS_SILO5_PORT_X}`,
                     threadid,
                     sessionid,
                     username,
                 })
             }
-            if (process.env.REDIS_SILO5_SERVER_X2) {
-                try {
-                    await redis.lpush({
-                        server: process.env.REDIS_SILO5_SERVER_X2,
-                        port: process.env.REDIS_SILO5_PORT_X2,
-
-                        key: `items_output`,
-                        value: js(qwiket),
-                        logContext,
-                    })
-                } catch (x) {
-                    l(chalk.red.bold("CATCH17", x))
-                    await dbLog({
-                        show: false,
-                        type: "SILO5 ERROR",
-                        body: `Exception on lpush to ${process.env.REDIS_SILO5_SERVER_X2}:${process.env.REDIS_SILO5_PORT_X2}`,
-                        threadid,
-                        sessionid,
-                        username,
-                    })
-                }
+            finally {
+                redis.quit();
             }
         }
     }
     try {
         l("!!!!!!!!!!!!!!!>>>>>>>>>>")
         if (qwiket.locale == "cdn") {
-            if(qwiket.image?.indexOf('ucarecdn')<0){
-            let image = qwiket.image_src ? qwiket.image_src : qwiket.image
-            
+            if (qwiket.image?.indexOf('ucarecdn') < 0) {
+                let image = qwiket.image_src ? qwiket.image_src : qwiket.image
+
                 l(chalk.magenta.bold("CDN ", image))
                 let result = await setCDN({
                     image,
@@ -1160,7 +1186,7 @@ const pushOutputQwiket = async ({
                 threadid,
                 sessionid,
                 username,
-                dbServerName: dbServerNameX1,
+
             })
         // l(444);
         let saved = result.success
@@ -1173,32 +1199,34 @@ const pushOutputQwiket = async ({
 
         //l("after fetch", JSON.stringify(result));
         if (result && result.success) qwiket = result.qwiket
-        await dbLog({
-            show: false,
-            type: "AFTER FETCH",
-            body: JSON.stringify(qwiket),
-            threadid,
-            sessionid,
-            username,
-        })
+
+        /* await dbLog({
+             show: false,
+             type: "AFTER FETCH",
+             body: JSON.stringify(qwiket),
+             threadid,
+             sessionid,
+             username,
+         })
+         */
         //  l("after 2", JSON.stringify(result));
-        if (saved) {
-            console.log("SYNCUP:", JSON.stringify({ index, slug: qwiket.slug }))
-            try {
-                result = await replicate({
-                    index,
-                    type: "qwiket",
-                    slug: qwiket.slug,
-                    supressLog: false,
-                    logContext: { sessionid, threadid, username },
-                })
-            } catch (x) {
-                l("Replicate Error", x)
-            }
-            console.log("SYNCUP DONE:", JSON.stringify({ slug: qwiket.slug }))
-        } else {
-            l("skipping save for existing silo 5")
-        }
+        /*  if (saved) {
+              console.log("SYNCUP:", JSON.stringify({ index, slug: qwiket.slug }))
+              try {
+                  result = await replicate({
+                      index,
+                      type: "qwiket",
+                      slug: qwiket.slug,
+                      supressLog: false,
+                      logContext: { sessionid, threadid, username },
+                  })
+              } catch (x) {
+                  l("Replicate Error", x)
+              }
+              console.log("SYNCUP DONE:", JSON.stringify({ slug: qwiket.slug }))
+          } else {
+              l("skipping save for existing silo 5")
+          }*/
     } catch (x) {
         l("EXCEPTION12", x)
         await dbLog({
@@ -1210,6 +1238,7 @@ const pushOutputQwiket = async ({
             username,
         })
     }
+
 }
 const feedTicker = async ({ sessionid, threadid, username, index, source }) => {
     let items = await dbQwiket.fetchOutputQueue({
@@ -1219,13 +1248,13 @@ const feedTicker = async ({ sessionid, threadid, username, index, source }) => {
         index,
         source,
     })
-    if (items) console.log("feedTicker got items", JSON.stringify(items))
+    //  if (items) console.log("feedTicker got items", JSON.stringify(items))
     if (items) {
-        // l(1122);
+        l('items.length', items.length);
         for (var i = 0; i < items.length; i++) {
             // l(112);
             let item = items[i]
-            l("item:", JSON.stringify(item))
+            // l("item:", JSON.stringify(item))
             // l(113);
             let { shared_time, primaryTag, qwiket: qwiketString, silo } = item
             let qwiket
@@ -1248,6 +1277,7 @@ const feedTicker = async ({ sessionid, threadid, username, index, source }) => {
                 )
             );*/
             qwiket.shared_time = shared_time
+            l('call pushOutputQwiket')
             await pushOutputQwiket({
                 sessionid,
                 threadid,
@@ -1288,18 +1318,18 @@ const saveFeed = async ({ feed, sessionid, threadid, username, index }) => {
                 l("CDN result", result.image, result.image_src)
                 feed.image = result.image
                 feed.image_src = result.image_src
-               /* result = await deleteOldCDN({
-                    seconds: 7 * 24 * 3600,
-                    logContext: {
-                        sessionid,
-                        threadid,
-                        username,
-                    },
-                })
-                // l(123);
-                if (!result || !result.success) {
-                    l(chalk.red.bold(`ERROR calling deleteOldCDN: ${result}`))
-                }*/
+                /* result = await deleteOldCDN({
+                     seconds: 7 * 24 * 3600,
+                     logContext: {
+                         sessionid,
+                         threadid,
+                         username,
+                     },
+                 })
+                 // l(123);
+                 if (!result || !result.success) {
+                     l(chalk.red.bold(`ERROR calling deleteOldCDN: ${result}`))
+                 }*/
             }
         }
         feed.micros = 0
@@ -1337,7 +1367,7 @@ const fetchFeed = async ({ slug, sessionid, threadid, username }) => {
             username,
             input: { slug },
         })
-        l(chalk.green.bold("fetchFeedAction", JSON.stringify(result)))
+        // l(chalk.green.bold("fetchFeedAction", JSON.stringify(result)))
         return result
     } catch (x) {
         l(chalk.red.bold("CATCH20", x))
@@ -1392,7 +1422,7 @@ const runDisqus = async ({ sessionid, threadid, username }) => {
         }
         start_time = ((Date.now() / 1000) | 0) - 1000
 
-        await sleep(30000)
+        // await sleep(30000)
     }
 }
 const runPreMigrate = async ({ sessionid, threadid, username }) => {
@@ -1428,6 +1458,52 @@ const runPreMigrate = async ({ sessionid, threadid, username }) => {
             }
         }
         await sleep(10000)
+    }
+}
+const runLongMigrate = async ({ sessionid, threadid, username, slugPrefix }) => {
+    let run = true
+    let count = 0
+    while (run) {
+        if (!count) threadid = "pm-" + Math.floor(Math.random() * 10000)
+        l("feedTicker", threadid);
+        const redis = await getRedisClient({});
+        try {
+            //let slugPrefix = 51
+
+            const key = `long-migrate-${slugPrefix}`;
+            let start_xid = await redis.get(key);
+            if (!start_xid) {
+                start_xid = 0;//((Date.now() / 1000) | 0) - 3600 * 24 * 2
+                l(chalk.green.bold("START runLongMigrate from scratch"))
+                await redis.set(key, "" + start_xid);
+            }
+            //if no more do migrate, return 0
+            start_xid = await qwiketActions.longMigrateQwikets({
+                slugPrefix,
+                start_xid,
+                index: "qwikets",
+                sessionid,
+                threadid,
+                username,
+            })
+            await redis.set(key, "" + start_xid);
+        } catch (x) {
+            l(
+                chalk.magenta.bold(
+                    `EXCEPTION indexQwikets PreMigrate threadid=${threadid}`,
+                    x
+                )
+            )
+        } finally {
+            redis.quit();
+            if (++count > 10) {
+                count = 0
+                run = false;
+                console.log("dbEnd runPreMigrate", threadid)
+                await dbEnd(threadid)
+            }
+        }
+        // await sleep(10000)
     }
 }
 const runIndexQwikets = async ({ sessionid, threadid, username }) => {
@@ -1493,9 +1569,9 @@ const runOutputQueue = async ({ sessionid, username }) => {
         await sleep(10000)
     }
 }
-const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) => {
+const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName }) => {
     allowLog()
-    //  console.log("ENTERED runFeeds");
+    console.log("ENTERED runFeeds", feedName);
     let key = `feeds-last-${silo}`
     // l("runFeeds==>", js({ silo }));
     let startTime = ((Date.now() / 1000) | 0) - 3600
@@ -1504,26 +1580,39 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) 
         threadid,
         username,
     }
-    await startRunning({ name: `all`, silo, logContext })
-    await dbEnd(threadid)
+    // const redis = await getRedisClient({});
+    //console.log("got client")
+    try {
+        await startRunning({ name: `all`, silo, logContext })
 
-    l(chalk.green("ENDED INIT THREAD", threadid))
-    threadid = 0
-    if(feedName){
-        return runFeed({
-            silo,
-            tag:feedName,
-            sessionid,
-            threadid,
-            username,
-        })
-       
+
+        l(chalk.green("ENDED INIT THREAD", threadid))
+
+        if (feedName) {
+            l(chalk.green("calling runFeed", feedName))
+            return runFeed({
+
+                silo,
+                tag: feedName,
+                sessionid,
+                threadid,
+                username,
+            })
+
+        }
     }
+    finally {
+
+        await dbEnd(threadid)
+    }
+    if (!process.env.AUTO_FEED && !process.env.AUTO_FEED2022)
+        return;
     let run = true
     let count = 0
     while (run) {
         if ((count = 0))
             threadid = "rf-" + Math.floor(Math.random() * 100000000)
+        const redis = await getRedisClient({});
         let logContext = {
             sessionid,
             threadid,
@@ -1532,19 +1621,26 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) 
         let noop = true
         l(chalk.yellow("new feed threadid", threadid))
         try {
-            run = await getRunning({ silo, name: "all", logContext })
+            run = await getRunning({ redis, silo, name: "all", logContext })
             if (!run) {
                 run = true
                 await sleep(10000)
                 continue
             }
-            let lastFeeds = await redis.zrevrange({
+            // l(111)
+            /* let lastFeeds = await redis.zrevrange({
+                 key,
+                 start: 0,
+                 withscores: true,
+                 stop: -1,
+                 logContext,
+             }) */
+            let lastFeeds = await redis.zrevrange(
                 key,
-                start: 0,
-                withscores: true,
-                stop: -1,
-                logContext,
-            })
+                0,
+                -1,
+                'WITHSCORES')
+            // l(222,lastFeeds)
             let feeds = await dbFeed.fetchActiveFeeds({
                 sessionid,
                 threadid,
@@ -1552,37 +1648,49 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) 
                 dbServerName: dbServerNameX1,
             })
             //  l(chalk.yellow("activeFeeds", js(feeds)));
+            //feeds=feeds.filter(p=>p.slug=='fnc')
             feeds = feeds.map((f) => {
-                // l("f:", f);
+                //if(f.slug!='americanthinker')
+                // return null;LOGC
+                if (f.slug == 'fnc')
+                    l("f:", f);
                 let now = (Date.now() / 1000) | 0
-                let score = now-305
+                let score = now - 305
                 if (lastFeeds)
                     for (var i = 0; i < lastFeeds.length; i++) {
                         let f1 = lastFeeds[i]
+                        if (f.slug == 'fnc')
+                            l('f1:', f1)
                         if (f1.value == f.slug) {
                             score = f1.score
                             break
                         }
                     }
                 return {
-                    
+
                     value: f.slug,
                     score,
                 }
             })
-            // l("combnined feeds:", js(feeds));
-            Promise.delay = function (t, val) {
-                return new Promise((resolve) => {
-                    setTimeout(resolve.bind(null, val), t)
-                })
-            }
+            //  l("combnined feeds:", js(feeds));
+            /*  Promise.delay = function (t, val) {
+                  return new Promise((resolve) => {
+                     // setTimeout(resolve.bind(null, val), t)
+                     setTimeout(async ()=>{
+  
+                      const redis = await getRedisClient({});
+                      redis.set(`feeds-break-thread-${threadid}`,1,'EX',10000);
+                      resolve(val)
+                     }, t)
+                  })
+              }*/
 
             Promise.raceAll = function (promises, timeoutTime, timeoutVal) {
                 return Promise.all(
                     promises.map((p) => {
                         return Promise.race([
                             p,
-                            Promise.delay(timeoutTime, timeoutVal),
+                            // Promise.delay(timeoutTime, timeoutVal),
                         ])
                     })
                 )
@@ -1593,47 +1701,55 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) 
                         //l("feed:", js(feed));
                         let now = (Date.now() / 1000) | 0
                         let ago = now - feed.score
-                        l(
-                            chalk.blue.bold(
-                                "*****************************feed:",
-                                js(feed),
-                                js({ ago })
+                        if (feed.value == 'fnc')
+                            l(
+                                chalk.blue.bold(
+                                    "*****************************feed:",
+                                    js(feed),
+                                    js({ ago })
+                                )
                             )
-                        )
-                        if (ago < 300) return
-                        l(
-                            chalk.blue.bold(
-                                "=============>>>>feed:",
-                                js(feed),
-                                js({ ago })
+                        if (feed.value == 'fnc')
+                            l(chalk.yellow("amgreat ago:", ago))
+                        if (ago < 300) return null;
+                        if (feed.value == 'amgreat')
+                            l(
+                                chalk.blue.bold(
+                                    "=============>>>>feed:",
+                                    js(feed),
+                                    js({ ago })
+                                )
                             )
-                        )
                         if (
                             await getRunning({
+                                redis,
                                 silo,
                                 name: feed.value,
                                 logContext,
                             })
                         ) {
                             l("running, so return")
-                            return
+                            return null
                         }
                         if (
                             !(await getRunning({
+                                redis,
                                 silo,
                                 name: "all",
                                 logContext,
                             }))
                         ) {
                             l("no 'all', return")
-                            return
+                            return null
                         }
                         noop = false
 
-                        const tag = feed.value
+                        const tag = feed.value;
+                        l("start random delay")
                         await sleep(Math.floor(Math.random() * 30000))
                         l(`CALL runFeed`, tag, threadid)
                         await runFeed({
+                            redis,
                             silo,
                             tag,
                             sessionid,
@@ -1645,19 +1761,24 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) 
 
                         // await sleep(5000);
                     })
-                    await Promise.raceAll(promises, 180000, null)
+                    promises.filter(p => p != null)
+                    await Promise.all(promises)
+                    l(chalk.blue.bold("ALL FEEDS RACE RESOUVED"))
                 }
                 await f()
                 l("dbEnd runFeeds", threadid)
-                if (++count > 10) {
-                    count = 0
-                    l(chalk.green("all feeds loop end", threadid))
-                    await dbEnd(threadid)
-                    threadid = `removed-${threadid}`
-                }
+                //if (++count > 200) {
+                count = 0
+                l(chalk.green("all feeds loop end", threadid))
+                await dbEnd(threadid)
+                threadid = `removed-${threadid}`
+                break;
+                //}
                 l("ALL FEEDS IN A LOOP DONE", threadid)
             }
         } finally {
+
+            await redis.quit();
             l("finally")
         }
 
@@ -1666,54 +1787,58 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username,feedName }) 
             await sleep(10000)
         }
     }
+
 }
-const stopFeeds = async ({ silo, sessionid, threadid, username }) => {
+
+const stopFeeds = async ({ redis, silo, sessionid, threadid, username }) => {
     let logContext = {
         sessionid,
         threadid,
         username,
     }
-    await stopRunning({ name: `all`, silo, logContext })
+    await stopRunning({ redis, name: `all`, silo, logContext })
     let key = `feeds-last-${silo}`
 
-    let feeds = await redis.zrevrange({
+    /*let feeds = await redis.zrevrange({
         key,
         start: 0,
         withscores: true,
         stop: -1,
         logContext,
-    })
+    })*/
+    let feeds = await redis.zrevrange(
+        key,
+        0,
+        -1,
+        'WITHSCORES'
+    )
     if (feeds) {
         feeds.forEach(async (feed) => {
-            stopRunning({ silo, name: feed.value, logContext })
+            stopRunning({ redis, silo, name: feed.value, logContext })
         })
     }
 }
-const feedsStatus = async ({ sessionid, silo, threadid, username }) => {
+const feedsStatus = async ({ redis, sessionid, silo, threadid, username }) => {
     try {
         let key = `feeds-last-${silo}`
 
         let logContext = { sessionid, threadid, username }
         //l("logcontext:", js(logContext));
-        let feeds = await redis.zrevrange({
+        let feeds = await redis.zrevrange(
             key,
-            start: 0,
-            stop: -1,
-            withscores: true,
-            server: redisServerX1,
-            port: redisPortX1,
-            logContext,
-        })
+            0,
+            -1,
+            'WITHSCORES'
+        )
         //  l(1, js(feeds));
         let runningFeeds = []
         let lastFeeds = []
         const now = (Date.now() / 1000) | 0
         for (var i = 0; i < feeds.length; i++) {
             let feed = feeds[i]
-            let status = await redis.get({
-                key: `feed-${silo}-running-${feed.value}`,
-                logContext,
-            })
+            let status = await redis.get(
+                `feed-${silo}-running-${feed.value}`
+            )
             //  l("feedsStatus runningFeeds", key, status);
             if (+status) runningFeeds.push({ name: feed.value, status })
 
@@ -1725,103 +1850,82 @@ const feedsStatus = async ({ sessionid, silo, threadid, username }) => {
         return { success: false, exception: x }
     }
 }
-const getRunning = async ({ redis,name, silo, logContext }) => {
+const getRunning = async ({ name, silo, logContext }) => {
     let key = `feed-${silo}-running-${name}`
-    let value = await redis.get({
-        key
-    })
-    //  l("getRunning", js({ key, logContext, value }));
+    const redis = await getRedisClient({});
+    // l("getRunning", key, redis.status)
+    try {
+        let value = await redis.get(
+            key
+        )
+        // l("getRunning result", js({ key, logContext, value }));
 
-    return +value
+        return +value
+    }
+    catch (x) {
+        l(chalk.red(x))
+    }
+    finally {
+        redis.quit();
+    }
 }
-const startRunning = async ({ redis,name, silo, logContext }) => {
-    //console.log("startRunning", name);
+const startRunning = async ({ name, silo, logContext }) => {
+    console.log("startRunning", name);
     let key = `feed-${silo}-running-${name}`
-    await redis.set(
-        key,
-        1,
-        {
-            EX:(name == "all" ? 24 * 3600 : 300)
-        }
-       
-    )
-    let now = (Date.now() / 1000) | 0
-    key = `feeds-last-${silo}`
-    //l("calling zadd", js({ key, now, name }));
-    await redis.zAdd({
-        key,
-        
-         now,
-        value: name,
-        server: redisServerX1,
-        port: redisPortX1,
-        logContext,
-    })
-    // console.log("startRunning ADDED feeds-last", key, now, name);
+    const redis = await getRedisClient({});
+    //l("ss")
+    try {
+       // l(33, key)
+        let value = await redis.get(
+            'test'
+        )
+       // l(11)
+        await redis.set(
+            key,
+            1,
+            'EX',
+            (name == "all" ? 24 * 3600 : 300),
+
+
+        )
+       // l(chalk.blue("after redis.set"))
+        let now = (Date.now() / 1000) | 0
+        key = `feeds-last-${silo}`
+       // l("calling zadd", js({ key, now, name }));
+        await redis.zadd(
+            key,
+            now,
+            name,
+        )
+        /*
+         await redis.zadd({
+            key,
+            score: now,
+            value: name,
+            server: redisServerX1,
+            port: redisPortX1,
+            logContext,
+        })*/
+        // console.log("startRunning ADDED feeds-last", key, now, name);
+    }
+    finally {
+        redis.quit();
+    }
 }
 const stopRunning = async ({ name, silo, logContext }) => {
     // console.log("stopRunning", name);
-    let key = `feed-${silo}-running-${name}`
-    await redis.del({
-        key,
-        server: redisServerX1,
-        port: redisPortX1,
-        logContext,
-    })
-}
-const migrateRules = async ({ logContext }) => {
-    let rules = await dbFeed.fetchMigrationRules({
-        ...logContext,
-        dbServerName: dbServerNameX1,
-    })
-    for (var i = 0; i < rules.length; i++) {
-        let { handler, shortname: slug } = rules[i]
-        let path = `./feeds/${slug}.js`
-        l("testing if rule exists:", path)
-        let exists = false
-        try {
-            if (fs.existsSync(path)) {
-                console.log("exists!")
-                var content = fs.readFileSync(path, "utf8")
-                if (content.indexOf("function func(") >= 0) exists = true
-            }
-        } catch (err) {
-            console.log("exx")
-            console.error(err)
-        }
-        if (!exists) {
-            console.log("writing file")
-            let r = `const { l, chalk, microtime, allowLog } = require('../common');
-const { postUrl } = require('../actions/feedActions');
-function func({
-    $,
-    item,
-    resolve,
-    reject,
-    log,
-    fetch,
-    isEmpty,
-    jsStringEscape,
-    pageUrl,
-    args,
-}) {
+    const redis = await getRedisClient({});
     try {
-        //========================"
-        ${handler}
-         //==================================================================================
-    } catch (x) {
-        l(chalk.red(x));
+        let key = `feed-${silo}-running-${name}`
+        await redis.del(
+            key
+        );
+    }
+    finally {
+        redis.quit();
     }
 }
-export default func;
-        `
-            fs.writeFile(path, r, function (err) {
-                if (err) return console.log(err)
-                console.log("File created")
-            })
-        }
-    }
-}
+
 export default {
     postUrl,
     runUrl,
@@ -1836,10 +1940,10 @@ export default {
     stopRunning,
     runFeedsAction,
     stopFeeds,
-    migrateRules,
     runDisqus,
     feedTicker,
     runOutputQueue,
     runPreMigrate,
+    runLongMigrate,
     runIndexQwikets,
 }

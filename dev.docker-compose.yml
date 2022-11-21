@@ -10,8 +10,8 @@ services:
             - 9051:9051
         restart: always  
        
-    lake-spider-dev:
-        image: "hudsonwilde/lake-server-dev"
+    spider-dev:
+        image: "hudsonwilde/spider-dev"
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         ports:
@@ -20,7 +20,7 @@ services:
         build:
             context: .
             dockerfile: dev.Dockerfile
-        container_name: lake-server-dev
+        container_name: spider-dev
         volumes:
             - ".:/home/app"
         working_dir: /home/app
@@ -32,8 +32,8 @@ services:
         env_file:
             - /home/nick/q3server/spider/lake-server-dev.env
         restart: unless-stopped
-    q3api-dev:
-        image: "hudsonwilde/q3api-dev"
+    api-dev:
+        image: "hudsonwilde/api-dev"
         stdin_open: true # docker run -i
         tty: true        # docker run -t
         ports:
@@ -42,7 +42,7 @@ services:
         build:
             context: .
             dockerfile: dev.Dockerfile
-        container_name: q3api-dev
+        container_name: api-dev
         volumes:
             - ".:/home/app"
         working_dir: /home/app

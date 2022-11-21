@@ -4,12 +4,13 @@ import dbQwiket from "../db/dbQwiket.js"
 import dbFeed from "../db/dbFeed.js"
 
 import { dbLog, dbEnd, dbFetchLogByThreadid } from "../db.js"
-import { setCDN, deleteOldCDN, loadCDN } from "../cdn.js"
-import { redis } from "../redis.js"
+import { setCDN, deleteOldCDN, loadCDN } from "../../cdn.js"
+//import { redis } from "../redis.js"
+import {getRedisClient} from "../../redis2022.js"
 import fs from "fs"
 //import { syncup as replicate } from "../replicate.js"
 import { l, chalk, sleep, js, microtime, allowLog } from "../common.js"
-import rules from "../rules.js"
+import rules from "../../rules.js"
 import UserAgent from "user-agents"
 import pkg from "socks-proxy-agent"
 const { SocksProxyAgent } = pkg
@@ -145,12 +146,17 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                 item.title + ":" + item.link
                             );*/
 
-                            let value = await redis.get({
+                           /**==>  let value = await redis.get({
                                 key,
                                 server: redisServerX1,
                                 port: redisPortX1,
                                 logContext: { sessionid, threadid, username },
-                            })
+                            })*/
+                           // const redis=getRedisClient({server:redisServerX1,port:redisPortX1});
+                            const redis=getRedisClient({});
+                            redis.connect();
+                            let value= await redis.get(key);
+                            redis.disconnect();
                             if (value == 1) {
                                 /*l(
                                     chalk.green.bold(
@@ -165,7 +171,14 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                             let expire = 120
                             l("setting redis", js({ key, avalue, expire }))
                             try {
-                                await redis.set({
+                                const redis=getRedisClient();
+                                redis.connect();
+                                await redis.set(key,avalue,{
+                                    EX:expire
+
+                                })
+                                redis.disconnect();
+                               /* await redis.set({
                                     key,
                                     value: avalue,
                                     server: redisServerX1,
@@ -176,7 +189,7 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                         threadid,
                                         username,
                                     },
-                                })
+                                })*/
                             } catch (x) {
                                 l(chalk.red.bold("CATCH 14", x))
                             }
@@ -375,6 +388,9 @@ const runFeedUrl = async ({
     level,
 }) => {
     if (!level) level = 0
+    const redis=getRedisClient();
+    try{
+        const redis=getRedisClient();
     console.log(
         "runFeed entry",
         js({ silo, primaryTag, rootUrl, level }),
@@ -412,12 +428,17 @@ const runFeedUrl = async ({
                 if (running == 0) break
                 let childRef = childRefs[i]
                 let key = `spiderurl-${silo}-${childRef}`
-                let value = await redis.get({
+               
+             
+                let value=await redis.get(key);
+             
+
+              /*  let value = await redis.get({
                     key,
                     server: redisServerX1,
                     port: redisPortX1,
                     logContext: { sessionid, threadid, username },
-                })
+                })*/
                 if (!value) {
                     let value = 1
                     let expire = 600
@@ -464,6 +485,10 @@ const runFeedUrl = async ({
             silo,
             logContext: { sessionid, threadid, username },
         })
+    }
+    finally{
+        await redis.quit();
+    }
 }
 const runUrl = async ({
     primaryTag,
@@ -1700,35 +1725,33 @@ const feedsStatus = async ({ sessionid, silo, threadid, username }) => {
         return { success: false, exception: x }
     }
 }
-const getRunning = async ({ name, silo, logContext }) => {
+const getRunning = async ({ redis,name, silo, logContext }) => {
     let key = `feed-${silo}-running-${name}`
     let value = await redis.get({
-        key,
-        server: redisServerX1,
-        port: redisPortX1,
-        logContext,
+        key
     })
     //  l("getRunning", js({ key, logContext, value }));
 
     return +value
 }
-const startRunning = async ({ name, silo, logContext }) => {
+const startRunning = async ({ redis,name, silo, logContext }) => {
     //console.log("startRunning", name);
     let key = `feed-${silo}-running-${name}`
-    await redis.set({
+    await redis.set(
         key,
-        expire: name == "all" ? 24 * 3600 : 300,
-        value: 1,
-        server: redisServerX1,
-        port: redisPortX1,
-        logContext,
-    })
+        1,
+        {
+            EX:(name == "all" ? 24 * 3600 : 300)
+        }
+       
+    )
     let now = (Date.now() / 1000) | 0
     key = `feeds-last-${silo}`
     //l("calling zadd", js({ key, now, name }));
-    await redis.zadd({
+    await redis.zAdd({
         key,
-        score: now,
+        
+         now,
         value: name,
         server: redisServerX1,
         port: redisPortX1,
