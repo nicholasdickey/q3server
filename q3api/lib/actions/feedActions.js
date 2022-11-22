@@ -410,7 +410,7 @@ const postUrl = async ({ url, silo, tags, sessionid, threadid, username }) => {
         feed = result.feed
     }
     //l(js({ feed }));
-    result = await runUrl({
+    const result2 = await runUrl({
         primaryTag,
         rootTag,
         feed,
@@ -423,7 +423,7 @@ const postUrl = async ({ url, silo, tags, sessionid, threadid, username }) => {
         username,
     })
     //l("END postUrl", js(result));
-    return result
+    return result2
 }
 
 const runFeedUrl = async ({
@@ -543,9 +543,9 @@ const runFeedUrl = async ({
 }
 const runUrl = async ({
     primaryTag,
-    rootTag,
-    qpostid,
-    index,
+  //  rootTag,
+  //  qpostid,
+   
     url,
     feed,
     source,
@@ -584,11 +584,11 @@ const runUrl = async ({
                 // js({ feed }),
                 silo,
                 url,
-                primaryTag,
-                index
+                primaryTag
+                
             )
         );
-        index = index ? index : "sync"
+      //  index = index ? index : "sync"
         let logContext = {
             sessionid,
             threadid,
@@ -612,7 +612,7 @@ const runUrl = async ({
                 sessionid,
                 username,
             })
-            return
+            return {success:false,qwiket:null}
         }
 
         // l(chalk.magenta.bold("feed:", js(feed)));
@@ -660,12 +660,12 @@ const runUrl = async ({
 
                 )
             )
-            let result
-            let itemUrl = item.url
-            let image = item.image
-            let qwiketid, q
-            item.category_xid = category_xid
-            item.reshare = 100
+            let result;
+            let itemUrl = item.url;
+            let image = item.image;
+            let qwiketid, q;
+            item.category_xid = category_xid;
+            item.reshare = 100;
 
             let check1 = await dbQwiket.checkUrl({
                 input: { url: itemUrl, silo },
@@ -749,7 +749,7 @@ const runUrl = async ({
                         sessionid,
                         username,
                     })
-                    return
+                    return {success:false,qwiket:null}
                 }
                 /* await dbLog({
                      show: false,
@@ -849,7 +849,7 @@ const runUrl = async ({
                     sessionid,
                     threadid,
                     username,
-                    index,
+                  
                     source,
                     input: { qwiket, silo, primaryTag },
                 })
@@ -871,7 +871,7 @@ const runUrl = async ({
                                 xQwiket: check,
                                 now,
                             })
-                            if (!qwiket) return false
+                            if (!qwiket) return {success:false,qwiket:null}
                         }
                         l(chalk.green.bold("2checkUrl:", dbServerSilo5X1))
                         check = await dbQwiket.checkUrl({
@@ -887,7 +887,7 @@ const runUrl = async ({
                                 xQwiket: check,
                                 now,
                             })
-                            if (!qwiket) return false
+                            if (!qwiket)  return {success:false,qwiket:null}
                         }
                         l(chalk.green.bold("2checkUrl:", dbServerSilo5X1))
                         check = await dbQwiket.checkUrl({
@@ -903,7 +903,7 @@ const runUrl = async ({
                                 xQwiket: check,
                                 now,
                             })
-                            if (!qwiket) return false
+                            if (!qwiket)  return {success:false,qwiket:null}
                         }
                     }
                 }
@@ -954,7 +954,7 @@ const runUrl = async ({
             sessionid,
             username,
         })
-        return { success: false, exception: x }
+        return { success: false, exception: x,qwiket:null }
     }
 }
 const processExistingQwiket = async ({ now, qwiket, xQwiket }) => {
@@ -978,7 +978,7 @@ const pushOutputQwiket = async ({
     sessionid,
     threadid,
     username,
-    index,
+    
     input,
     qpostid,
     source,
@@ -991,7 +991,7 @@ const pushOutputQwiket = async ({
     let { qwiket, silo, primaryTag, now } = input
     let { url, shared_time } = qwiket
     let result
-    l("pushOutputQwiket", index)
+    l("pushOutputQwiket")
     if (silo == 5) {
         if (qwiket) {
             let check = await dbQwiket.checkUrl({
@@ -1240,12 +1240,11 @@ const pushOutputQwiket = async ({
     }
 
 }
-const feedTicker = async ({ sessionid, threadid, username, index, source }) => {
+const feedTicker = async ({ sessionid, threadid, username, source }) => {
     let items = await dbQwiket.fetchOutputQueue({
         threadid,
         sessionid,
         username,
-        index,
         source,
     })
     //  if (items) console.log("feedTicker got items", JSON.stringify(items))
@@ -1282,16 +1281,16 @@ const feedTicker = async ({ sessionid, threadid, username, index, source }) => {
                 sessionid,
                 threadid,
                 username,
-                index,
+               
                 source,
                 input: { qwiket, silo, primaryTag },
             })
         }
     }
 }
-const saveFeed = async ({ feed, sessionid, threadid, username, index }) => {
+const saveFeed = async ({ feed, sessionid, threadid, username }) => {
     try {
-        index = index ? index : "sync"
+       // index = index ? index : "sync"
         l("saveFeed", JSON.stringify(feed))
         if (
             feed.image == feed.image_src ||
@@ -1342,13 +1341,13 @@ const saveFeed = async ({ feed, sessionid, threadid, username, index }) => {
         })
         if (result.success) {
             let category_xid = result.category_xid
-            result = await replicate({
+            /*result = await replicate({
                 index,
                 type: "feed",
                 slug: feed.slug,
                 supressLog: false,
                 logContext: { sessionid, threadid, username },
-            })
+            })*/
             console.log("END ACTION SAVE FEED")
             return { success: true }
         }
@@ -1371,7 +1370,7 @@ const fetchFeed = async ({ slug, sessionid, threadid, username }) => {
         return result
     } catch (x) {
         l(chalk.red.bold("CATCH20", x))
-        return { success: false, exception: x }
+        return { success: false, exception: x, feed:null }
     }
 }
 const validateFeedSlug = async ({ slug, sessionid, threadid, username }) => {
@@ -1554,7 +1553,7 @@ const runOutputQueue = async ({ sessionid, username }) => {
                 sessionid,
                 threadid,
                 username,
-                index: "sync",
+              
                 source: "runOutputQueue",
             })
         } catch (x) {
@@ -1790,12 +1789,15 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
 
 }
 
-const stopFeeds = async ({ redis, silo, sessionid, threadid, username }) => {
+const stopFeeds = async ({ silo, sessionid, threadid, username }) => {
     let logContext = {
         sessionid,
         threadid,
         username,
     }
+    
+    const redis = await getRedisClient({});
+    try{
     await stopRunning({ redis, name: `all`, silo, logContext })
     let key = `feeds-last-${silo}`
 
@@ -1817,8 +1819,13 @@ const stopFeeds = async ({ redis, silo, sessionid, threadid, username }) => {
             stopRunning({ redis, silo, name: feed.value, logContext })
         })
     }
+    }
+    finally{
+        redis.quit();
+    }
 }
-const feedsStatus = async ({ redis, sessionid, silo, threadid, username }) => {
+const feedsStatus = async ({  sessionid, silo, threadid, username }) => {
+    const redis = await getRedisClient({});
     try {
         let key = `feeds-last-${silo}`
 
@@ -1848,6 +1855,9 @@ const feedsStatus = async ({ redis, sessionid, silo, threadid, username }) => {
     } catch (x) {
         l(chalk.red.bold("CATCH22", x))
         return { success: false, exception: x }
+    }
+    finally {
+        redis.quit();
     }
 }
 const getRunning = async ({ name, silo, logContext }) => {

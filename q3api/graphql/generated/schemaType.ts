@@ -99,8 +99,10 @@ export type Mutation = {
   pingPayloadMutation?: Maybe<Scalars['String']>;
   postUrl?: Maybe<RunUrlResult>;
   runFeed?: Maybe<Scalars['Boolean']>;
+  runFeeds?: Maybe<Scalars['Boolean']>;
   runUrl?: Maybe<RunUrlResult>;
   saveFeed?: Maybe<ReturnValue>;
+  stopFeeds?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -138,6 +140,11 @@ export type MutationRunFeedArgs = {
 };
 
 
+export type MutationRunFeedsArgs = {
+  silo?: InputMaybe<Scalars['Int']>;
+};
+
+
 export type MutationRunUrlArgs = {
   primaryTag: Scalars['String'];
   silo?: InputMaybe<Scalars['Int']>;
@@ -148,6 +155,11 @@ export type MutationRunUrlArgs = {
 
 export type MutationSaveFeedArgs = {
   feed?: InputMaybe<FeedInput>;
+};
+
+
+export type MutationStopFeedsArgs = {
+  silo?: InputMaybe<Scalars['Int']>;
 };
 
 export type Place = {

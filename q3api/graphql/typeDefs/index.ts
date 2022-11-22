@@ -142,6 +142,8 @@ type Mutation {
     runFeed(slug: String!, silo: Int, tags: [String]): Boolean
     postUrl(url: String!, silo: Int, tags: [String]): RunUrlResult
     saveFeed(feed: FeedInput): returnValue
+    runFeeds(silo: Int): Boolean
+    stopFeeds(silo: Int): Boolean
 }
  type Place {
   id: ID
