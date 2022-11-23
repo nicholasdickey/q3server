@@ -73,6 +73,8 @@ const Query = {
     },
     ping: (parent: any, args: any, ctx: any) => {
         // String
+        console.log("PING")
+        l("ping")
         return `Pong`;
     }
 };

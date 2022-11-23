@@ -10,12 +10,12 @@ import { getRedisClient } from "../redis.js"
 import fs from "fs"
 //import { syncup as replicate } from "../replicate.js"
 import { l, chalk, sleep, js, microtime, allowLog } from "../common.js"
-import rules from "../../rules.js"
-import UserAgent from "user-agents"
+import rules from "../rules.js"
+//import UserAgent from "user-agents"
 import pkg from "socks-proxy-agent"
 const { SocksProxyAgent } = pkg
 
-import Parser from "rss-parser"
+import Parser from "rss-parser" 
 
 
 const dbServerNameX1 = process.env.DB_HOST_PRIMARY

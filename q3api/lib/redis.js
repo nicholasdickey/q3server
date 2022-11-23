@@ -1,6 +1,5 @@
 // ./redis.js
 import { l, chalk, js } from "./common.js";
-import redis from "redis";
 import Redis from 'ioredis';
 //import redisearch from "redis-redisearch";
 //setTimeout(()=>redisearch(redis),100);

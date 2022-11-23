@@ -5,6 +5,7 @@ import * as schema from '@/graphql/generated/schemaType';
 
 const Query = {
   placeList: (parent: any, args: any, ctx: any): schema.Query['placeList'] => {
+    console.log("placeList")
     return places;
   },
 
