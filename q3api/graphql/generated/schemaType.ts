@@ -98,11 +98,13 @@ export type Mutation = {
   addUser: User;
   pingPayloadMutation?: Maybe<Scalars['String']>;
   postUrl?: Maybe<RunUrlResult>;
+  resetTest?: Maybe<Scalars['Boolean']>;
   runFeed?: Maybe<Scalars['Boolean']>;
   runFeeds?: Maybe<Scalars['Boolean']>;
   runUrl?: Maybe<RunUrlResult>;
   saveFeed?: Maybe<ReturnValue>;
   stopFeeds?: Maybe<Scalars['Boolean']>;
+  stopTest?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -130,6 +132,11 @@ export type MutationPostUrlArgs = {
   silo?: InputMaybe<Scalars['Int']>;
   tags?: InputMaybe<Array<InputMaybe<Scalars['String']>>>;
   url: Scalars['String'];
+};
+
+
+export type MutationResetTestArgs = {
+  test?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -162,6 +169,12 @@ export type MutationStopFeedsArgs = {
   silo?: InputMaybe<Scalars['Int']>;
 };
 
+
+export type MutationStopTestArgs = {
+  name?: InputMaybe<Scalars['String']>;
+  silo?: InputMaybe<Scalars['Int']>;
+};
+
 export type Place = {
   __typename?: 'Place';
   desciption?: Maybe<Scalars['String']>;
@@ -182,9 +195,11 @@ export type Query = {
   pingPayload?: Maybe<Scalars['String']>;
   place?: Maybe<Place>;
   placeList?: Maybe<Array<Maybe<Place>>>;
+  qwiketTagsQuery?: Maybe<Array<Maybe<Qwiket>>>;
   reviewByUser?: Maybe<Array<Maybe<Review>>>;
   user: User;
   userList: Array<User>;
+  validateFeedSlug?: Maybe<ReturnValue>;
 };
 
 
@@ -213,6 +228,15 @@ export type QueryPlaceArgs = {
 };
 
 
+export type QueryQwiketTagsQueryArgs = {
+  environment?: InputMaybe<Scalars['Int']>;
+  operation?: InputMaybe<Scalars['String']>;
+  page?: InputMaybe<Scalars['Int']>;
+  silo?: InputMaybe<Scalars['Int']>;
+  tags: Array<InputMaybe<Scalars['String']>>;
+};
+
+
 export type QueryReviewByUserArgs = {
   id?: InputMaybe<Scalars['ID']>;
 };
@@ -220,6 +244,11 @@ export type QueryReviewByUserArgs = {
 
 export type QueryUserArgs = {
   id: Scalars['ID'];
+};
+
+
+export type QueryValidateFeedSlugArgs = {
+  slug?: InputMaybe<Scalars['String']>;
 };
 
 export type Qwiket = {

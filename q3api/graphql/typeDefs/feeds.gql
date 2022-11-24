@@ -50,9 +50,17 @@ type FeedsStatus {
 type Query {
     feedsStatus(silo: Int): FeedsStatus
     fetchFeed(slug: String): Feed
+    validateFeedSlug(slug: String): returnValue
     allFeeds(channel: String): [FeedItem]
     pingPayload(payload: String): String
     ping: String
+    qwiketTagsQuery(
+        tags: [String]!
+        operation: String
+        silo: Int
+        page: Int
+        environment: Int
+    ): [Qwiket]
 }
 type Qwiket {
     slug: ID
@@ -144,4 +152,6 @@ type Mutation {
     saveFeed(feed: FeedInput): returnValue
     runFeeds(silo: Int): Boolean
     stopFeeds(silo: Int): Boolean
+    resetTest(test: String): Boolean
+    stopTest(name: String, silo: Int): Boolean
 }

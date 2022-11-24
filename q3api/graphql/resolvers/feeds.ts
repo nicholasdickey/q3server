@@ -2,6 +2,7 @@ import { resolverType } from 'fast-graphql';
 import { l, chalk, js } from "../../lib/common.js";
 
 import feedActions from "@/lib/actions/feedActions.js"
+import testActions from "@/lib/actions/testActions.js"
 import * as schema from '@/graphql/generated/schemaType';
 import { dbEnd, dbFetchLogByThreadid } from "../../lib/db.js";
 import dbFeed from "../../lib/db/dbFeed.js"
@@ -41,6 +42,17 @@ const Query = {
         let feed = result.feed;
 
         return feed;
+    },
+    validateFeedSlug: async (parent: any, args: any, ctx: any) => {
+        const { slug } = args;
+        const { sessionid, threadid, user } = ctx;
+        let result = await feedActions.validateFeedSlug({
+            slug,
+            username: user ? user.username : "graphql",
+            sessionid,
+            threadid,
+        });
+        return result;
     },
     allFeeds: async (parent: any, args: any, ctx: any) => {
         //(channel: String): [FeedItem]
@@ -197,6 +209,31 @@ const Mutation = {
             username: user ? user.slug : "graphql",
             sessionid,
             threadid,
+        });
+        return true;
+    },
+    resetTest: (parent: any, args: any, ctx: any) => {
+        const { sessionid, threadid, user } = ctx;
+        l("resetTestWrap");
+        testActions.resetTest({
+            username: user ? user.slug : "graphql",
+            sessionid,
+            threadid,
+        });
+        return true;
+    },
+    stopTest: (parent: any, args: any, ctx: any) => {
+        const { name } = args;
+        const { sessionid, threadid, user } = ctx;
+        l("stopTestWrap");
+        feedActions.stopRunning({
+            name,
+            silo:0,
+            logContext: {
+                username: user ? user.slug : "graphql",
+                sessionid,
+                threadid,
+            },
         });
         return true;
     }
