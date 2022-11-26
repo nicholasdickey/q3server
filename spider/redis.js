@@ -1,7 +1,7 @@
 // ./redis.js
 import { l, chalk, js } from "./lib/common.js";
 import redis from "redis";
-import redisearch from "redis-redisearch";
+//import redisearch from "redis-redisearch";
 //setTimeout(()=>redisearch(redis),100);
 import { dbLog } from "./lib/db.js";
 //const client = redisearch.createClient();

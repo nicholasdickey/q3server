@@ -1,8 +1,8 @@
 // ./src/server.js
-import redis from "redis";
-import redisearch from "redis-redisearch";
-console.log(redis)
-redisearch(redis);
+//import redis from "redis";
+//import redisearch from "redis-redisearch";
+//console.log(redis)
+//redisearch(redis);
 //import module from "module"
 //import fs from "fs" //.promises;
 /*module.Module._extensions[".js"] = function (module, filename) {
@@ -208,13 +208,15 @@ if (process.env.PRE_MIGRATE2022 == 1) {
         threadid: "server.js11",
         username: "server.js",
     })
-    exit();
-   /* runIndexQwikets({
+   l("call runIndexQwikets")
+    await  runIndexQwikets({
         //db+redisearch but for the last hour only.
         sessionid: "server.js",
         threadid: "server.js2",
         username: "server.js",
     })
+     exit();
+     /*
     console.log("runDisqus ")
     runDisqus({
         sessionid: "server.js",

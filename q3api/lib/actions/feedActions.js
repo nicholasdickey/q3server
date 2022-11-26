@@ -1427,12 +1427,12 @@ const runDisqus = async ({ sessionid, threadid, username }) => {
 const runPreMigrate = async ({ sessionid, threadid, username }) => {
     let run = true
     let count = 0
-    while (run) {
+   // while (run) {
         if (!count) threadid = "pm-" + Math.floor(Math.random() * 10000)
         l("feedTicker", threadid)
         try {
             let slugPrefix = 51
-            let start_time = ((Date.now() / 1000) | 0) - 3600 * 24 * 2
+            let start_time = ((Date.now() / 1000) | 0) - 3600  * 1
 
             await qwiketActions.preMigrateQwikets({
                 slugPrefix,
@@ -1456,8 +1456,8 @@ const runPreMigrate = async ({ sessionid, threadid, username }) => {
                 await dbEnd(threadid)
             }
         }
-        await sleep(10000)
-    }
+    //    await sleep(10000)
+   // }
 }
 const runLongMigrate = async ({ sessionid, threadid, username, slugPrefix }) => {
     let run = true
@@ -1508,7 +1508,7 @@ const runLongMigrate = async ({ sessionid, threadid, username, slugPrefix }) => 
 const runIndexQwikets = async ({ sessionid, threadid, username }) => {
     let run = true
     let count = 0
-    while (run) {
+   // while (run) {
         if (!count) threadid = "pm-" + Math.floor(Math.random() * 10000)
         l("feedTicker", threadid)
         try {
@@ -1537,8 +1537,8 @@ const runIndexQwikets = async ({ sessionid, threadid, username }) => {
                 await dbEnd(threadid)
             }
         }
-        await sleep(10000)
-    }
+      //  await sleep(10000)
+   // }
 }
 const runOutputQueue = async ({ sessionid, username }) => {
     let run = true

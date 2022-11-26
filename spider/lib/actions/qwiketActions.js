@@ -101,7 +101,7 @@ const preMigrateQwikets = async ({
         "====== after migrateQwiketRecords",
         process.env.DB_HOST_SILO5_PRIMARY
     );
-    page = 0;
+  /*  page = 0;
     while (cont) {
         try {
             rows = await dbQwiket.migrateQwiketRecords({
@@ -132,7 +132,7 @@ const preMigrateQwikets = async ({
             page++;
             l(chalk.green.bold("PRE-MIGRATE X2 CONTINUE", page));
         }
-    }
+    }*/
 };
 const indexQwikets = async ({
     slugPrefix,
@@ -147,9 +147,9 @@ const indexQwikets = async ({
     let page = 0;
     let rows = 0;
 
-    // l(JSON.stringify(qwiketInput))
-
-    if (process.env.PRE_MIGRATE == 1) {
+     l('indexQwikets')
+/*
+    if (process.env.PRE_MIGRATE == 1||process.env.PRE_MIGRATE2022) {
         while (cont) {
             try {
                 rows = await dbQwiket.migrateQwiketRecords({
@@ -213,10 +213,11 @@ const indexQwikets = async ({
             }
         }
     }
+    */
     while (cont) {
-        /* console.log(
+         console.log(
             `&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& page=${page}`
-        );*/
+        );
         const qwiketInput = {
             // published_time,
             slugPrefix,
@@ -231,7 +232,7 @@ const indexQwikets = async ({
             qwiketInput,
             username,
         });
-        /*console.log(
+        console.log(
             "after fetchQ!",
             js({
                 success,
@@ -239,10 +240,10 @@ const indexQwikets = async ({
                 page,
                 length: inputQwikets ? inputQwikets.length : 0,
             })
-        );*/
+        );
         if (success && inputQwikets && inputQwikets.length) {
             for (var i = 0; i < inputQwikets.length; i++) {
-                //l("QWIKET", chalk.blue.bold(inputQwikets[i].value));
+                l("QWIKET", chalk.blue.bold(inputQwikets[i].value));
                 const q = JSON.parse(inputQwikets[i].value);
                 /* if (q["cat" == "americanthinker"]) {
                     var br = 1;
@@ -276,7 +277,7 @@ const indexQwikets = async ({
                     qwiketTags.forEach(item => tags.add(item["shortname"]));
                 }
                 // console.log("after fetchTags");
-                //  l(chalk.yellow('TAGS OBJECT', JSON.stringify(tags)))
+                 l(chalk.yellow('TAGS OBJECT', JSON.stringify(tags)))
                 let tagsString = tags ? [...tags].join(",") : `""`;
 
                 if (typeof q["body"] === "object")
@@ -322,7 +323,7 @@ const indexQwikets = async ({
                     port: redisPortX1,
                     logContext: { sessionid, threadid, username },
                 };
-                /* l(
+                 l(
                      chalk.magenta(
                          JSON.stringify({
                                  channelSlug: q["channelSlug"],
@@ -333,9 +334,10 @@ const indexQwikets = async ({
                              4
                          )
                      )
-            );*/
+            );
+            l("********************")
                 await redis.ft_add(record);
-                // l("after ft_add", page, i);
+               l("after ft_add", page, i);
             }
             /*if (inputQwikets.length < size) {
                 l(

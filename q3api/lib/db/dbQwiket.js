@@ -1078,9 +1078,9 @@ const fetchQ = async ({
     //let query = await dbGetQuery("hub1db3", threadid, dbServerName);
 
     sql = `SELECT DISTINCT q.* from  q${slugPrefix} q, pov_threads_view${slugPrefix} t where q.\`key\`=CONCAT(t.threadid,'.qwiket') and t.shared_time>=${published_time} order by shared_time limit ${start},${size}`
-    // l(chalk.cyan(6661, dbServerName, sql));
+    l(chalk.cyan(6661, dbServerName, sql));
     let rows = await query(sql)
-    //l(chalk.grey("return:", rows ? rows.length : 0, sql));
+    l(chalk.grey("return:", rows ? rows.length : 0, sql));
     /* await dbLog({
         show: false,
         type: "SQL",
