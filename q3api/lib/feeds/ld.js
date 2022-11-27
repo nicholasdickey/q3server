@@ -1,6 +1,6 @@
 import { l, chalk, microtime, allowLog, js } from "../common.js";
-import feedActions from "../actions/feedActions.js";
-const { postUrl } = feedActions;
+import runFeedActions from "../actions/runFeedActions.js";
+const { postUrl } = runFeedActions;
 function remove(b) {
     b.find(`#dpsp-content-bottom`).remove()
     b.find(`.tve-leads-two-step-trigger`).nextAll().remove();

@@ -1,12 +1,14 @@
 import { resolverType } from 'fast-graphql';
-import { l, chalk, js } from "../../lib/common.js";
+import { l, chalk, js,allowLog } from "../../lib/common.js";
 
-import feedActions from "@/lib/actions/feedActions.js"
-import testActions from "@/lib/actions/testActions.js"
+import testActions from "../../lib/actions/testActions.js"
 import * as schema from '@/graphql/generated/schemaType';
-import { dbEnd, dbFetchLogByThreadid } from "../../lib/db.js";
+import { dbLog,dbEnd, dbFetchLogByThreadid } from "../../lib/db.js";
 import dbFeed from "../../lib/db/dbFeed.js"
-
+import feedActions from "../../lib/actions/feedActions.js"
+import qwiketActions from "../../lib/actions/qwiketActions.js"
+//console.log(feedActions)
+allowLog()
 const Query = {
 
     feedsStatus: async (parent: any, args: any, ctx: any) => {
@@ -16,27 +18,38 @@ const Query = {
         const { silo } = args;
         //l("feedsStatusWrap", sessionid, threadid, user ? user.slug : "graphql");
         l("feedsStatusWrap", js({ sessionid, threadid, silo }));
-    
+       // l(feedActions)
         let result = await feedActions.feedsStatus({
             silo,
             username: user ? user.slug : "graphql",
             sessionid,
             threadid,
+            
         });
+       // l("feedStatus:",result)
         return result;
     },
     fetchFeed: async (parent: any, args: any, ctx: any) => {
         //(slug: String): Feed
+       l(feedActions)
+       
         const { slug } = args;
         const { sessionid, threadid, user } = ctx;
-        //l(11111);
-        l("fetchFeedQuery", js({ sessionid, threadid, slug }));
-        let result = await feedActions.fetchFeed({
+        l(11111,sessionid,threadid,user);
+        l("fetchFeedQuery=>", js({ args,sessionid, threadid, user,slug }));
+       /* let result = await fetchFeed({
             slug,
             username: user ? user.slug : "graphql",
             sessionid,
             threadid,
-        });
+        });*/
+        let result = await dbFeed.fetchFeed({
+            sessionid,
+            threadid,
+            username:user?user.username:"graphql",
+            dbServerName:null,
+            input: { slug },
+        })
         console.log("fetchFeedQuery 3313", JSON.stringify(result));
 
         let feed = result.feed;
@@ -58,7 +71,8 @@ const Query = {
         //(channel: String): [FeedItem]
         const { sessionid, threadid, user } = ctx;
 
-        l("allFeedsQueryWrap", js({ sessionid, threadid, user }));
+        l("allFeedsQueryWrap",js({ sessionid, threadid, user }));
+       
         let feeds = await dbFeed.fetchTags({ threadid, sessionid, username: user ? user.username : "graphql", dbServerName: null });
         /* let feeds = await allFeedsQuery({
              username: "anon", // username: user ? username : "anon",
@@ -68,6 +82,32 @@ const Query = {
         l("allFeedsQueryWrap end");
         return feeds;
     },
+    qwiketTagsQuery: async (parent: any, args: any, ctx: any) => {
+   
+        const { tags, silo, operation, page, environment } = args;
+        const { sessionid, threadid, user } = ctx;
+        l(
+            "qwiketTagsQueryWrap",
+            js({ sessionid, threadid, tags, silo, operation, page, environment })
+        );
+        return await qwiketActions.qwiketTagsQuery({
+            tags,
+            silo,
+            operation,
+            page,
+            environment, //0,1
+            username: user ? user.slug : "graphql",
+            sessionid,
+            threadid,
+            dbServerName:null,
+            logContext: {
+                username: user ? user.slug : "graphql",
+                sessionid,
+                threadid,
+            },
+        });
+    },
+    
     pingPayload: (parent: any, args: any, ctx: any) => {
         //(payload: String): String
         const { sessionid, threadid, user } = ctx;
@@ -168,6 +208,7 @@ const Mutation = {
         });
         let qwiket = result.qwiket;
         let log = await dbFetchLogByThreadid({ threadid });
+        l("called dbFetchLogByThreadid",threadid,log)
         return { qwiket, log };
     },
     saveFeed: async (parent: any, args: any, ctx: any) => {

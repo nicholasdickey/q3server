@@ -18,6 +18,7 @@
 
 
 import feedActions from "./lib/actions/feedActions.js"
+import {  dbEnd } from "./lib/db.js"
 const {
     runFeedsAction,
     runDisqus,
@@ -61,6 +62,7 @@ if(process.env.FEED){
         threadid: "server.js1",
         username: "server.js",
     })
+    dbEnd(`server.js-${threadid1}`)
     exit();
     
 }
@@ -80,6 +82,7 @@ if(process.env.FEED2022){
         threadid: "server.js1",
         username: "server.js",
     })*/
+    dbEnd(`server.js-${threadid1}`);
     exit();
     
 }
@@ -88,9 +91,10 @@ if(process.env.OUT2022){
     console.log("OUT2022")
     await runOutputQueue({
         sessionid: "server.js",
-        threadid: "server.js1",
+        threadid: dbEnd(`server.js1-${threadid1}`),
         username: "server.js",
     })
+   dbEnd(`server.js1-${threadid1}`)
     exit();
 }
 if (process.env.AUTO_FEED) {
@@ -102,12 +106,13 @@ if (process.env.AUTO_FEED) {
         threadid: `server.js-${threadid1}`,
         username: "server.js",
     })
-
+    dbEnd(`server.js-${threadid1}`)
     runOutputQueue({
         sessionid: "server.js",
-        threadid: "server.js1",
+        threadid: `server.js2-${threadid1}`,
         username: "server.js",
     })
+    dbEnd(`server.js2-${threadid1}`)
 }
 if (process.env.AUTO_FEED2022) {
     allowLog()
@@ -121,6 +126,7 @@ if (process.env.AUTO_FEED2022) {
         threadid: `server.js-${threadid1}`,
         username: "server.js",
     })
+    dbEnd(`server.js1-${threadid1}`);
     console.log("END AUTO_FEED2022")
     await sleep(2000)
     exit();
@@ -157,10 +163,11 @@ if (process.env.LONG_MIGRATE2022_51 == 1) {
    await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
-        threadid: "server.js11",
+        threadid:`server.js11-${threadid1}`,
         username: "server.js",
         slugPrefix:'51'
     })
+    dbEnd(`server.js11-${threadid1}`)
     sleep(10000)
     exit();
 }
@@ -169,10 +176,11 @@ if (process.env.LONG_MIGRATE2022_5 == 1) {
    await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
-        threadid: "server.js11",
+        threadid:`server.js11-${threadid1}`,
         username: "server.js",
         slugPrefix:'5'
     })
+    dbEnd(`server.js11-${threadid1}`)
     sleep(12000)
     exit();
 }
@@ -181,10 +189,11 @@ if (process.env.LONG_MIGRATE2022_3 == 1) {
    await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
-        threadid: "server.js11",
+        threadid:`server.js11-${threadid1}`,
         username: "server.js",
         slugPrefix:'3'
     })
+    dbEnd(`server.js11-${threadid1}`)
     sleep(30000)
     exit();
 }
@@ -193,10 +202,11 @@ if (process.env.LONG_MIGRATE2022_ == 1) {
    await  runLongMigrate({
         //db only, two days
         sessionid: "server.js",
-        threadid: "server.js11",
+        threadid:`server.js11-${threadid1}`,
         username: "server.js",
         slugPrefix:''
     })
+    dbEnd(`server.js11-${threadid1}`)
     sleep(41000)
     exit();
 }
@@ -205,17 +215,19 @@ if (process.env.PRE_MIGRATE2022 == 1) {
     await runPreMigrate({
         //db only, two days
         sessionid: "server.js",
-        threadid: "server.js11",
+        threadid:`server.js11-${threadid1}`,
         username: "server.js",
     })
+    dbEnd(`server.js11-${threadid1}`)
    l("call runIndexQwikets")
     await  runIndexQwikets({
         //db+redisearch but for the last hour only.
         sessionid: "server.js",
-        threadid: "server.js2",
+        threadid:`server.js12-${threadid1}`,
         username: "server.js",
     })
-     exit();
+    dbEnd(`server.js12-${threadid1}`)
+    exit();
      /*
     console.log("runDisqus ")
     runDisqus({

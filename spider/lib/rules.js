@@ -3,8 +3,8 @@ import cheerio from "whacko"
 import fetch from "fetch-everywhere"
 import UserAgent from "user-agents"
 
-import pkg from "socks-proxy-agent"
-const { SocksProxyAgent } = pkg
+import { SocksProxyAgent } from "socks-proxy-agent"
+//const { SocksProxyAgent } = pkg
 
 import { l, chalk, microtime, allowLog, js } from "./common.js"
 import { promises as fs } from "fs"

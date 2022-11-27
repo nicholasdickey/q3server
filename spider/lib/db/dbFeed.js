@@ -58,10 +58,10 @@ const fetchActiveFeeds = async ({
     let sql, result;
     /// l("fetchSubroots");
     let query = await dbGetQuery("povdb", threadid, dbServerName);
-    sql = `SELECT slug,root from pov_v10_feeds where active=1 limit 10000`;
+    sql = `SELECT slug,root,minTimeout from pov_v10_feeds where active=1 limit 10000`;
    // l(444,sql)
     let rows = await query(
-        `SELECT slug,root from pov_v10_feeds where active=1 limit 10000`
+        `SELECT slug,root,minTimeout from pov_v10_feeds where active=1 limit 10000`
     );
   //  l(555,rows)
     await dbLog({

@@ -6,13 +6,16 @@ import { createContext } from '@/graphql/context';
 import typeDefs from '@/graphql/typeDefs';
 import resolvers from '@/graphql/resolvers';
 
+const ss=async ():Promise<ApolloServer>=>{
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: createContext,
 });
-const startServer = apolloServer.start();
 
+const startServer =await apolloServer.start();
+return apolloServer;
+}
 export default async function graphqlServer({
   req,
   res,
@@ -22,6 +25,7 @@ export default async function graphqlServer({
   res: NextApiResponse;
   serverConfig?: any;
 }) {
+  console.log("graphqlServer")
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', '*');
@@ -29,9 +33,9 @@ export default async function graphqlServer({
     res.end();
     return false;
   }
-
-  await startServer;
-  await apolloServer.createHandler({
+  const server=await ss();
+ // await server.startServer;
+  await server.createHandler({
     path: '/api/graphql',
   })(req, res);
 }

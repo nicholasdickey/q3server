@@ -375,11 +375,12 @@ const redisC = {
         port,
         logContext: { sessionid, threadid, username },
     }) => {
-        //   l("zrevrange", JSON.stringify({ sessionid, threadid, username }));
+        console.log('zz',logContext)
+        l("zrevrange", JSON.stringify({ sessionid, threadid, username }));
         let redisClient = await getRedisClient({ server, port });
         try {
             if (withscores) {
-                // l("withscores");
+               l("withscores");
                 return new Promise(async (resolve, reject) => {
                     return redisClient.zrevrange(
                         key,
@@ -1287,4 +1288,4 @@ const push = async ({ index, type, slug, block, logContext, supressLog }) => {
 };
 
 
-export { getRedisClient, redisC as redis, push };
+export { getRedisClient, redisC as redis, push,resultToObject };
