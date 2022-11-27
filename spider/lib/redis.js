@@ -6,7 +6,20 @@ import { dbLog } from "./db.js";
 const redisServer = process.env.REDIS_HOST_PRIMARY;
 const redisPort = process.env.REDIS_PORT_PRIMARY;
 const redisNodes = process.env.REDIS_NODES;
-
+const startupNodes=[
+    {
+        host:'192.168.1.16',
+        port:6379
+    },
+    {
+        host:'192.168.1.30',
+        port:6379
+    },
+    {
+        host:'192.168.1.31',
+        port:6379
+    }
+]
 
 /**
  * 
@@ -19,7 +32,7 @@ const redisNodes = process.env.REDIS_NODES;
  *  
  */
 const getRedisClient = async ({ server = redisServer, port = redisPort, nodes = redisNodes, x = false }) => {
-
+try{
     if (!x)
         x = false;
     nodes = nodes || redisNodes;
@@ -36,7 +49,8 @@ const getRedisClient = async ({ server = redisServer, port = redisPort, nodes = 
     let client;
 
     if (!x) {
-        client = new Redis.Cluster(rootNodes, {
+        l("connectCluster",rootNodes)
+        client = new Redis.Cluster(startupNodes, {
             retryDelayOnFailover: 100,
             enableAutoPipelining: true,
             slotsRefreshTimeout: 100000,
@@ -46,7 +60,23 @@ const getRedisClient = async ({ server = redisServer, port = redisPort, nodes = 
         l(chalk.yellow.bold("X REDIS, ", port, server))
         client = new Redis(port, server) //redis.createClient(port, server);
     }
+    client.on("error", (error) => {
+        console.error("Redis Error", error);
+      });
+      client.on("connected", (error) => {
+        console.error("Redis connected", error);
+      });
+      client.on("node error", (error, node) => {
+        console.error(`Redis error in node ${node}`, error);
+      });
+    //client.connect();
     return client;
+}
+catch(error){
+    l(chalk.red.bold(error))
+
+}
+    
 };
 const resultToObject = result => {
     if (!result) return [];

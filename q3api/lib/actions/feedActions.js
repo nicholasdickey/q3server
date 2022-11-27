@@ -1614,7 +1614,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
     if ((count = 0))
         threadid = "rf-" + Math.floor(Math.random() * 100000000)
     const redis = await getRedisClient({});
-   
+
     let noop = true
     l(chalk.yellow("new feed threadid", threadid))
     try {
@@ -1669,7 +1669,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
 
                 value: f.slug,
                 score,
-                minTimeout:f.minTimeout
+                minTimeout: f.minTimeout
             }
         })
         //  l("combnined feeds:", js(feeds));
@@ -1697,276 +1697,302 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
          }*/
         if (feeds) {
             //let f = async () => {
-            let promises = feeds.map(async (feed) => {
-                //l("feed:", js(feed));
-                let now = (Date.now() / 1000) | 0
-                let ago = now - feed.score
-                if (feed.value == 'fnc')
-                    l(
-                        chalk.blue.bold(
-                            "*****************************feed:",
-                            js(feed),
-                            js({ ago })
-                        )
-                    )
-                if (feed.value == 'fnc')
-                    l(chalk.yellow("amgreat ago:", ago))
-                if (ago < 300||feed.minTimeout>process.env.FEED_TIMEOUT) return null;
-                if (feed.value == 'amgreat')
-                    l(
-                        chalk.blue.bold(
-                            "=============>>>>feed:",
-                            js(feed),
-                            js({ ago })
-                        )
-                    )
-                if (
-                    await getRunning({
-                        redis,
-                        silo,
-                        name: feed.value,
-                        logContext,
-                    })
-                ) {
-                    l("running, so return")
-                    return null
+            l("build Promises")
+            feeds = feeds.map((f) => {
+                // l("f:", f);
+                let score = 0
+                if (lastFeeds)
+                    for (var i = 0; i < lastFeeds.length; i++) {
+                        let f1 = lastFeeds[i]
+                        if (f1.value == f.slug) {
+                            score = f1.score
+                            break
+                        }
+                    }
+                return {
+                    value: f.slug,
+                    score,
                 }
-                if (
-                    !(await getRunning({
-                        redis,
-                        silo,
-                        name: "all",
-                        logContext,
-                    }))
-                ) {
-                    l("no 'all', return")
-                    return null
-                }
-                noop = false
-
-                const tag = feed.value;
-                l("start random delay")
-               
-                l(`CALL runFeed`, tag, threadid)
-                return async()=>{
-                    await sleep(Math.floor(Math.random() * 30000))
-                    return runFeed({
-                    redis,
-                    silo,
-                    tag,
-                    sessionid,
-                    threadid,
-                    username,
+            })
+            // l("combnined feeds:", js(feeds));
+            Promise.delay = function (t, val) {
+                return new Promise((resolve) => {
+                    setTimeout(resolve.bind(null, val), t)
                 })
             }
-                l(chalk.green.bold(`FEED done`, tag, threadid))
-                //return resolve();
 
-                // await sleep(5000);
-            })
-            promises.filter(p => p != null)
-            await Promise.all(promises)
-            l(chalk.blue.bold("ALL FEEDS RACE RESOUVED"))
-            // }
-            // await f()
-            l("dbEnd runFeeds", threadid)
-            //if (++count > 200) {
-            count = 0
-            l(chalk.green("all feeds loop end", threadid))
-            await dbEnd(threadid)
-            threadid = `removed-${threadid}`
-            //break;
-            //}
-            // l("ALL FEEDS IN A LOOP DONE", threadid)
+            Promise.raceAll = function (promises, timeoutTime, timeoutVal) {
+                return Promise.all(
+                    promises.map((p) => {
+                        return Promise.race([
+                            p,
+                            Promise.delay(timeoutTime, timeoutVal),
+                        ])
+                    })
+                )
+            }
+            if (feeds) {
+                let f = async () => {
+                    let promises = feeds.map(async (feed) => {
+                        //l("feed:", js(feed));
+                        let now = (Date.now() / 1000) | 0
+                        let ago = now - feed.score
+                        l(
+                            chalk.blue.bold(
+                                "*****************************feed:",
+                                js(feed),
+                                js({ ago })
+                            )
+                        )
+                        if (ago < 300||feed.minTimeout*60*1000>process.env.FEED_TIMEOUT) return
+                        l(
+                            chalk.blue.bold(
+                                "=============>>>>feed:",
+                                js(feed),
+                                js({ ago })
+                            )
+                        )
+                        if (
+                            await getRunning({
+                                silo,
+                                name: feed.value,
+                                logContext,
+                            })
+                        ) {
+                            l("running, so return")
+                            return
+                        }
+                        if (
+                            !(await getRunning({
+                                silo,
+                                name: "all",
+                                logContext,
+                            }))
+                        ) {
+                            l("no 'all', return")
+                            return
+                        }
+                        noop = false
+
+                        const tag = feed.value
+                        await sleep(Math.floor(Math.random() * 30000))
+                        l(`CALL runFeed`, tag, threadid)
+                        await runFeed({
+                            silo,
+                            tag,
+                            sessionid,
+                            threadid,
+                            username,
+                        })
+                        l(chalk.green.bold(`FEED done`, tag, threadid))
+                        //return resolve();
+
+                        // await sleep(5000);
+                    })
+                    await Promise.raceAll(promises, process.env.TIMEOUT, null)
+                }
+                await f()
+                l("dbEnd runFeeds", threadid)
+                //if (++count > 200) {
+                count = 0
+                l(chalk.green("all feeds loop end", threadid))
+                await dbEnd(threadid)
+                threadid = `removed-${threadid}`
+            }
+                //break;
+                //}
+                // l("ALL FEEDS IN A LOOP DONE", threadid)
+            }
+        } finally {
+
+            await redis.quit();
+            l("finally")
         }
-    } finally {
 
-        await redis.quit();
-        l("finally")
+        if (noop) {
+            l("sleep", threadid)
+            await sleep(10000)
+        }
+        // }
+
     }
-
-    if (noop) {
-        l("sleep", threadid)
-        await sleep(10000)
-    }
-    // }
-
-}
 
 const stopFeeds = async ({ silo, sessionid, threadid, username }) => {
-    let logContext = {
-        sessionid,
-        threadid,
-        username,
-    }
-
-    const redis = await getRedisClient({});
-    try {
-        await stopRunning({ redis, name: `all`, silo, logContext })
-        let key = `feeds-last-${silo}`
-
-        /*let feeds = await redis.zrevrange({
-            key,
-            start: 0,
-            withscores: true,
-            stop: -1,
-            logContext,
-        })*/
-        let res = await redis.zrevrange(
-            key,
-            0,
-            -1,
-            'WITHSCORES'
-        )
-        let feeds = [];
-        for (var i = 0; i < res.length; i++) {
-            feeds.push({ value: res[i], score: res[++i] });
+        let logContext = {
+            sessionid,
+            threadid,
+            username,
         }
-        if (feeds) {
-            feeds.forEach(async (feed) => {
-                stopRunning({ redis, silo, name: feed.value, logContext })
-            })
-        }
-    }
-    finally {
-        redis.quit();
-    }
-}
-const feedsStatus = async ({ sessionid, silo, threadid, username }) => {
-    const redis = await getRedisClient({});
-    try {
-        let key = `feeds-last-${silo}`
 
-        let logContext = { sessionid, threadid, username }
-        //l("logcontext:", js(logContext));
-        let res = await redis.zrevrange(
-            key,
-            0,
-            -1,
-            'WITHSCORES'
-        )
-        let feeds = [];
-        for (var i = 0; i < res.length; i++) {
-            feeds.push({ value: res[i], score: res[++i] });
-        }
-        l(1, js(feeds));
-        let runningFeeds = []
-        let lastFeeds = []
-        const now = (Date.now() / 1000) | 0
-        for (var i = 0; i < feeds.length; i++) {
-            let feed = feeds[i]
-            const statusKey = `feed-${silo}-running-${feed.value}`;
-            let status = await redis.get(
-                statusKey
+        const redis = await getRedisClient({});
+        try {
+            await stopRunning({ redis, name: `all`, silo, logContext })
+            let key = `feeds-last-${silo}`
+
+            /*let feeds = await redis.zrevrange({
+                key,
+                start: 0,
+                withscores: true,
+                stop: -1,
+                logContext,
+            })*/
+            let res = await redis.zrevrange(
+                key,
+                0,
+                -1,
+                'WITHSCORES'
             )
-            l("feedsStatus runningFeeds", statusKey, status);
-            if (+status) runningFeeds.push({ name: feed.value, status })
-
-            lastFeeds.push({ name: feed.value, last: now - feed.score })
+            let feeds = [];
+            for (var i = 0; i < res.length; i++) {
+                feeds.push({ value: res[i], score: res[++i] });
+            }
+            if (feeds) {
+                feeds.forEach(async (feed) => {
+                    stopRunning({ redis, silo, name: feed.value, logContext })
+                })
+            }
         }
-        return { success: true, lastFeeds, runningFeeds }
-    } catch (x) {
-        l(chalk.red.bold("CATCH22", x))
-        return { success: false, exception: x }
+        finally {
+            redis.quit();
+        }
     }
-    finally {
-        redis.quit();
-    }
-}
-const getRunning = async ({ name, silo, logContext }) => {
-    let key = `feed-${silo}-running-${name}`
-    const redis = await getRedisClient({});
-    // l("getRunning", key, redis.status)
-    try {
-        let value = await redis.get(
-            key
-        )
-        // l("getRunning result", js({ key, logContext, value }));
+    const feedsStatus = async ({ sessionid, silo, threadid, username }) => {
+        const redis = await getRedisClient({});
+        try {
+            let key = `feeds-last-${silo}`
 
-        return +value
-    }
-    catch (x) {
-        l(chalk.red(x))
-    }
-    finally {
-        redis.quit();
-    }
-}
-const startRunning = async ({ name, silo, logContext }) => {
-    console.log("startRunning", name);
-    let key = `feed-${silo}-running-${name}`
-    const redis = await getRedisClient({});
-    //l("ss")
-    try {
-        // l(33, key)
-        let value = await redis.get(
-            'test'
-        )
-        // l(11)
-        await redis.set(
-            key,
-            1,
-            'EX',
-            (name == "all" ? 24 * 3600 : 300),
+            let logContext = { sessionid, threadid, username }
+            //l("logcontext:", js(logContext));
+            let res = await redis.zrevrange(
+                key,
+                0,
+                -1,
+                'WITHSCORES'
+            )
+            let feeds = [];
+            for (var i = 0; i < res.length; i++) {
+                feeds.push({ value: res[i], score: res[++i] });
+            }
+            l(1, js(feeds));
+            let runningFeeds = []
+            let lastFeeds = []
+            const now = (Date.now() / 1000) | 0
+            for (var i = 0; i < feeds.length; i++) {
+                let feed = feeds[i]
+                const statusKey = `feed-${silo}-running-${feed.value}`;
+                let status = await redis.get(
+                    statusKey
+                )
+                l("feedsStatus runningFeeds", statusKey, status);
+                if (+status) runningFeeds.push({ name: feed.value, status })
 
-
-        )
-        // l(chalk.blue("after redis.set"))
-        let now = (Date.now() / 1000) | 0
-        key = `feeds-last-${silo}`
-        // l("calling zadd", js({ key, now, name }));
-        await redis.zadd(
-            key,
-            now,
-            name,
-        )
-        /*
-         await redis.zadd({
-            key,
-            score: now,
-            value: name,
-            server: redisServerX1,
-            port: redisPortX1,
-            logContext,
-        })*/
-        // console.log("startRunning ADDED feeds-last", key, now, name);
+                lastFeeds.push({ name: feed.value, last: now - feed.score })
+            }
+            return { success: true, lastFeeds, runningFeeds }
+        } catch (x) {
+            l(chalk.red.bold("CATCH22", x))
+            return { success: false, exception: x }
+        }
+        finally {
+            redis.quit();
+        }
     }
-    finally {
-        redis.quit();
-    }
-}
-const stopRunning = async ({ name, silo, logContext }) => {
-    // console.log("stopRunning", name);
-    const redis = await getRedisClient({});
-    try {
+    const getRunning = async ({ name, silo, logContext }) => {
         let key = `feed-${silo}-running-${name}`
-        await redis.del(
-            key
-        );
-    }
-    finally {
-        redis.quit();
-    }
-}
+        const redis = await getRedisClient({});
+        // l("getRunning", key, redis.status)
+        try {
+            //l(99)
+            let value = await redis.get(
+                key
+            )
+            //  l(100)
+            l("getRunning result", js({ key, logContext, value }));
 
-export default {
-    postUrl,
-    runUrl,
-    runFeedUrl,
-    runFeed,
-    saveFeed,
-    fetchFeed,
-    validateFeedSlug,
-    feedsStatus,
-    getRunning,
-    startRunning,
-    stopRunning,
-    runFeedsAction,
-    stopFeeds,
-    runDisqus,
-    feedTicker,
-    runOutputQueue,
-    runPreMigrate,
-    runLongMigrate,
-    runIndexQwikets,
-}
+            return +value
+        }
+        catch (x) {
+            l(chalk.red(x))
+        }
+        finally {
+            redis.quit();
+        }
+    }
+    const startRunning = async ({ name, silo, logContext }) => {
+        console.log("startRunning", name);
+        let key = `feed-${silo}-running-${name}`
+        const redis = await getRedisClient({});
+        //l("ss")
+        try {
+            // l(33, key)
+            let value = await redis.get(
+                'test'
+            )
+            // l(11)
+            await redis.set(
+                key,
+                1,
+                'EX',
+                (name == "all" ? 24 * 3600 : 300),
+
+
+            )
+            // l(chalk.blue("after redis.set"))
+            let now = (Date.now() / 1000) | 0
+            key = `feeds-last-${silo}`
+            // l("calling zadd", js({ key, now, name }));
+            await redis.zadd(
+                key,
+                now,
+                name,
+            )
+            /*
+             await redis.zadd({
+                key,
+                score: now,
+                value: name,
+                server: redisServerX1,
+                port: redisPortX1,
+                logContext,
+            })*/
+            // console.log("startRunning ADDED feeds-last", key, now, name);
+        }
+        finally {
+            redis.quit();
+        }
+    }
+    const stopRunning = async ({ name, silo, logContext }) => {
+        // console.log("stopRunning", name);
+        const redis = await getRedisClient({});
+        try {
+            let key = `feed-${silo}-running-${name}`
+            await redis.del(
+                key
+            );
+        }
+        finally {
+            redis.quit();
+        }
+    }
+
+    export default {
+        postUrl,
+        runUrl,
+        runFeedUrl,
+        runFeed,
+        saveFeed,
+        fetchFeed,
+        validateFeedSlug,
+        feedsStatus,
+        getRunning,
+        startRunning,
+        stopRunning,
+        runFeedsAction,
+        stopFeeds,
+        runDisqus,
+        feedTicker,
+        runOutputQueue,
+        runPreMigrate,
+        runLongMigrate,
+        runIndexQwikets,
+    }
