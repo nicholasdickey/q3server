@@ -1648,7 +1648,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
         })
         //  l(chalk.yellow("activeFeeds", js(feeds)));
         //feeds=feeds.filter(p=>p.slug=='fnc')
-        feeds = feeds.map((f) => {
+       /* feeds = feeds.map((f) => {
             //if(f.slug!='americanthinker')
             // return null;LOGC
             if (f.slug == 'fnc')
@@ -1671,7 +1671,8 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
                 score,
                 minTimeout: f.minTimeout
             }
-        })
+            
+        })*/
         //  l("combnined feeds:", js(feeds));
         /*  Promise.delay = function (t, val) {
               return new Promise((resolve) => {
@@ -1699,7 +1700,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
             //let f = async () => {
             l("build Promises")
             feeds = feeds.map((f) => {
-                // l("f:", f);
+                 l("f:", f);
                 let score = 0
                 if (lastFeeds)
                     for (var i = 0; i < lastFeeds.length; i++) {
@@ -1712,6 +1713,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
                 return {
                     value: f.slug,
                     score,
+                    minTimeout:f.timeout
                 }
             })
             // l("combnined feeds:", js(feeds));
@@ -1734,7 +1736,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
             if (feeds) {
                 let f = async () => {
                     let promises = feeds.map(async (feed) => {
-                        //l("feed:", js(feed));
+                        l("feed:", js(feed));
                         let now = (Date.now() / 1000) | 0
                         let ago = now - feed.score
                         l(

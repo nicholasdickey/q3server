@@ -49,7 +49,7 @@ try{
     let client;
 
     if (!x) {
-        l("connectCluster",rootNodes)
+      //  l("connectCluster",rootNodes)
         client = new Redis.Cluster(startupNodes, {
             retryDelayOnFailover: 100,
             enableAutoPipelining: true,
