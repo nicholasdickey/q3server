@@ -99,12 +99,8 @@ const Query = {
             username: user ? user.slug : "graphql",
             sessionid,
             threadid,
-            dbServerName:null,
-            logContext: {
-                username: user ? user.slug : "graphql",
-                sessionid,
-                threadid,
-            },
+           
+        
         });
     },
     
