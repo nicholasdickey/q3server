@@ -185,7 +185,7 @@ services:
             - LONG_MIGRATE2022_=1
             
         env_file:
-            - /prod-spider.env
+            - prod-spider.env
         restart: unless-stopped
         
 
