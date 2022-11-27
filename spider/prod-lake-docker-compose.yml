@@ -20,7 +20,7 @@ services:
             - CDNKEY=5c2c11b864e624852159 
             
         env_file:
-            - /home/nick/spider2/lake-server-dev.env
+            - lake-server-dev.env
         restart: unless-stopped
        
     tor:
@@ -52,7 +52,7 @@ services:
             - FEED_TIMEOUT=330000
             
         env_file:
-            - /home/nick/spider2/prod-spider.env
+            - prod-spider.env
         restart: unless-stopped
     spider-autofeed-prod2:
         image: "hudsonwilde/lake-spider-prod"
@@ -75,7 +75,7 @@ services:
             - FEED_TIMEOUT=930000
             
         env_file:
-            - /home/nick/spider2/prod-spider.env
+            - prod-spider.env
         restart: unless-stopped  
     spider-autofeed-prod3:
         image: "hudsonwilde/lake-spider-prod"
@@ -98,7 +98,7 @@ services:
             - FEED_TIMEOUT=1930000
             
         env_file:
-            - /home/nick/spider2/prod-spider.env
+            - prod-spider.env
         restart: unless-stopped     
     lake-out-prod:
         image: "hudsonwilde/lake-spider-prod"
@@ -119,7 +119,7 @@ services:
             - OUT2022=1
             
         env_file:
-            - /home/nick/spider2/lake-server-dev.env
+            - prod-spider.env
         restart: unless-stopped
     
     lake-longmigrate51-prod:
@@ -141,7 +141,7 @@ services:
             - LONG_MIGRATE2022_51=1
             
         env_file:
-            - /home/nick/spider2/prod-spider.env
+            - prod-spider.env
         restart: unless-stopped
           
     lake-longmigrate5-prod:
@@ -163,7 +163,7 @@ services:
             - LONG_MIGRATE2022_5=1
             
         env_file:
-            - /home/nick/spider2/prod-spider.env
+            - prod-spider.env
         restart: unless-stopped
         
     lake-longmigrate-prod:
@@ -185,7 +185,7 @@ services:
             - LONG_MIGRATE2022_=1
             
         env_file:
-            - /home/nick/spider2/prod-spider.env
+            - /prod-spider.env
         restart: unless-stopped
         
 
