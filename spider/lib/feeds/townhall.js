@@ -16,6 +16,7 @@ function func({
     try {
         //========================"
         //v 0017
+
         if (item.title.indexOf("Townhall") >= 0) return reject(item);
         if (
             item.url &&
@@ -36,16 +37,18 @@ function func({
                 item.url.indexOf(`political-cartoons`)) >= 0
         )
             return reject(item);
+           
         var date = new Date();
         var minutes = date.getTimezoneOffset();
         //item.published_time+=minutes*60
-        let d = $(`#article-meta`).text();
-        // log(`d` + d);
+        let d = $(`#post-meta`).text();
+       // console.log(`d` + d);
+       // console.log("SSSSS333")    
         let meta = JSON.parse(d);
         let dateStr = meta.PublishedDate;
         // log(`dateStr:` + dateStr);
         let jsDate = (Date.parse(dateStr) / 1000) | 0;
-        // log(jsDate);
+      //  log(jsDate);
         item.published_time = jsDate;
         if (isEmpty(item.author)) item.author = meta.Author;
         String.prototype.replaceAll = function (search, replacement) {
@@ -59,14 +62,14 @@ function func({
         b.find(`.aside-wrapper`).remove();
         b.find(`iframe[src*="triggered"]`).remove();
         b.find(`iframe[src*="banners"]`).remove();
-        b.find(`.article-aside-ad`).remove();
+        b.find(`.post-aside-ad`).remove();
         b.find(`.aside-wrapper`).remove();
         b.find(`.mpw-inline-col`).remove();
-        b.find(`#article-footer`).remove();
-        b.find(`#article-HEADER`).remove();
-        b.find(`#article-comments`).remove();
+        b.find(`#post-footer`).remove();
+        b.find(`#post-HEADER`).remove();
+        b.find(`#post-comments`).remove();
         item.body = b.html();
-        item.description = $(`#article-body p`).text().substring(0, 256);
+        item.description = $(`#post-body p`).text().substring(0, 256);
         //log("description=",item.description);
         return resolve(item);
         //==================================================================================

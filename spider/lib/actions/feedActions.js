@@ -193,13 +193,14 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                 })
                             const redis = await getRedisClient({});
                             let stop = await redis.get(`feed-break-thread-${slug}-${threadid}`);
+                            if(stop)
                             l(chalk.magenta.bold("******************  GOT STOP", stop, slug, threadid))
                             if (stop) {
                                 l(chalk.magenta.bold("******************  BREAKING", slug, threadid))
                                 return;
                             };
                             let value = await redis.get(key);
-                            if (value == 1) {
+                            if (value == 1&&!process.env.FEED2022) {
                                 l(
                                     chalk.green.bold(
                                         "rss key less than an hour old, skipping"
