@@ -2074,9 +2074,9 @@ const fetchOutputQueue = async ({
     l(chalk.green.bold("fetchOutputQueue",dbServerName));
     const now = (Date.now() / 1000) | 0
     let query = await dbGetQuery("povdb", threadid, dbServerName)
-    sql = `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by  shared_time limit 40'   //<'${now}'`
+    sql = `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by  shared_time limit 140'   //<'${now}'`
     const rows = await query(
-        `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by shared_time limit 40`
+        `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by shared_time limit 140`
         
     )
     l('SQL:',sql,rows.length)
