@@ -2074,14 +2074,14 @@ const fetchOutputQueue = async ({
     l(chalk.green.bold("fetchOutputQueue",dbServerName));
     const now = (Date.now() / 1000) | 0
     let query = await dbGetQuery("povdb", threadid, dbServerName)
-    sql = `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,tagSlug as primaryTag,silo from pov_output_queue order by  shared_time limit 40'   //<'${now}'`
+    sql = `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by  shared_time limit 40'   //<'${now}'`
     const rows = await query(
-        `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,tagSlug as primaryTag,silo from pov_output_queue order by shared_time limit 40`
+        `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by shared_time limit 40`
         
     )
     l('SQL:',sql,rows.length)
     //
-    // l(23984, chalk.magenta.bold(js(rows)))
+   // l(23984, chalk.magenta.bold(js(rows)))
     await dbLog({
         show: false,
         type: "SQL",
@@ -2092,9 +2092,20 @@ const fetchOutputQueue = async ({
         sessionid,
         username,
     })
-    sql = `DELETE from pov_output_queue order by shared_time limit 40'  //<${now}`
-    result = await query(`DELETE from pov_output_queue order by  shared_time limit 40`)
-    await dbLog({
+    if(rows&&rows.length){
+        for(let i=0;i<rows.length;i++){
+            let slug=rows[i].qwiketSlug
+            l(chalk.green.bold("OUTPUT QUEUE DELETING",slug,`DELETE from pov_output_queue where qwiketSlug='${slug}'`))
+            result = await query(`DELETE from pov_output_queue where qwiketSlug=?`,[slug])
+            l(result)
+        }
+
+    }
+    
+
+   // sql = `DELETE from pov_output_queue order by shared_time limit 40'  //<${now}`
+   // result = await query(`DELETE from pov_output_queue order by  shared_time limit 40`)
+  /*  await dbLog({
         show: false,
         type: "SQL",
         body: `{sql:${sql}, res:${
@@ -2103,7 +2114,7 @@ const fetchOutputQueue = async ({
         threadid,
         sessionid,
         username,
-    })
+    })*/
 
     return rows
 }
