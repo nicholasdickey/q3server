@@ -223,7 +223,7 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                 continue
                             }
                             let avalue = "1"
-                            let expire = 600
+                            let expire = 300
                             l("setting redis", js({ key, avalue, expire }))
                             try {
 
