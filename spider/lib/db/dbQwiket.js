@@ -553,7 +553,7 @@ const longMigrateQwiketRecords = async ({
                 {
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate source: {sql:${sql}, res:${
+                    body: `long-migrate source: {sql:${sql}, res:${
                         rows ? JSON.stringify(rows, null, 4) : "null"
                     }}`,
                     threadid,
@@ -576,6 +576,7 @@ const longMigrateQwiketRecords = async ({
             let rows2 = await povdbSource(sql,[xid])
            
             row = rows2[0]
+         //   l(chalk.yellow("Got full record from the source"),row.threadid,row.xid)
             let value = row["value"]
             //  let q = JSON.parse(value);
             //l(chalk.cyan.bold(js({ cat: q["cat"] })));
@@ -619,10 +620,11 @@ const longMigrateQwiketRecords = async ({
                 username,
             })
             let rt1 = await povdbTarget1(
-                `SELECT DISTINCT threadid from pov_threads_view${slugPrefix} where threadid=?  limit 1`,
+                `SELECT DISTINCT threadid,FROM_UNIXTIME(published_time) as published from pov_threads_view${slugPrefix} where threadid=?  limit 1`,
                 [keyThreadid]
             )
-          //  l(chalk.green("got target qwiket",js(rs))) ;
+            if(rt1&&rt1.length)
+            l(chalk.green("exist target qwiket","has row:",rt1[0]['published'],keyThreadid)) ;
             await dbLog({
                 show: false,
                 type: "SQL",
@@ -652,7 +654,7 @@ const longMigrateQwiketRecords = async ({
                 )
             );*/
             if (!rt1 || !rt1.length) {
-               // l(chalk.green)
+                l(chalk.green('new thredid'))
                 let insertSql = `INSERT into pov_threads_view${slugPrefix} (threadid,title,site_name,url,description,locale,identity,image,text,date,published_time,updated_time,shared_by_user_name,category_xid,author,feed,reshare,shared_time,shared_by_identity,shared_by_profileurl,shared_by_avatar,thread,feed_xid,image_src,printurl,video,entity) 
                 VALUES ("${rs["threadid"]}","${rs["title"]}","${
                     rs["site_name"]
