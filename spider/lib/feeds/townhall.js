@@ -16,7 +16,8 @@ function func({
     try {
         //========================"
         //v 0017
-        l('inside townhall')
+       // l('inside townhall')
+        item.site_name='Townhall';
         if (item.title.indexOf("Townhall") >= 0) return reject(item);
         if (
             item.url &&
