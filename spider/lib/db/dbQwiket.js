@@ -54,9 +54,8 @@ const remove = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            res ? JSON.stringify(res, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${res ? JSON.stringify(res, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -67,9 +66,8 @@ const remove = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            res ? JSON.stringify(res, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${res ? JSON.stringify(res, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -125,9 +123,8 @@ const fetch = async ({
         )
         await dbLog({
             type: "SQL",
-            body: `{sql:${sql}, res:${
-                rows ? JSON.stringify(rows, null, 4) : "null"
-            }}`,
+            body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                }}`,
             threadid,
             sessionid,
             username,
@@ -190,9 +187,8 @@ const fetch = async ({
         await dbLog({
             show: false,
             type: "SQL",
-            body: `{sql:${sql}, res:${
-                rows ? JSON.stringify(rows, null, 4) : "null"
-            }}`,
+            body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                }}`,
             threadid,
             sessionid,
             username,
@@ -239,9 +235,8 @@ const fetch = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `{sql:${sql}, res:${
-                    tagRows ? JSON.stringify(tagRows, null, 4) : "null"
-                }}`,
+                body: `{sql:${sql}, res:${tagRows ? JSON.stringify(tagRows, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -274,11 +269,10 @@ const fetch = async ({
                                 )
                                 await dbLog({
                                     type: "SQL",
-                                    body: `{sql:${sql}, res:${
-                                        rows
-                                            ? JSON.stringify(rows, null, 4)
-                                            : "null"
-                                    }}`,
+                                    body: `{sql:${sql}, res:${rows
+                                        ? JSON.stringify(rows, null, 4)
+                                        : "null"
+                                        }}`,
                                     threadid,
                                     sessionid,
                                     username,
@@ -305,11 +299,10 @@ const fetch = async ({
                                 )
                                 await dbLog({
                                     type: "SQL",
-                                    body: `{sql:${sql}, res:${
-                                        rows
-                                            ? JSON.stringify(rows, null, 4)
-                                            : "null"
-                                    }}`,
+                                    body: `{sql:${sql}, res:${rows
+                                        ? JSON.stringify(rows, null, 4)
+                                        : "null"
+                                        }}`,
                                     threadid,
                                     sessionid,
                                     username,
@@ -331,11 +324,10 @@ const fetch = async ({
                                 )
                                 await dbLog({
                                     type: "SQL",
-                                    body: `{sql:${sql}, res:${
-                                        rows
-                                            ? JSON.stringify(rows, null, 4)
-                                            : "null"
-                                    }}`,
+                                    body: `{sql:${sql}, res:${rows
+                                        ? JSON.stringify(rows, null, 4)
+                                        : "null"
+                                        }}`,
                                     threadid,
                                     sessionid,
                                     username,
@@ -358,11 +350,10 @@ const fetch = async ({
                                 )
                                 await dbLog({
                                     type: "SQL",
-                                    body: `{sql:${sql}, res:${
-                                        rows
-                                            ? JSON.stringify(rows, null, 4)
-                                            : "null"
-                                    }}`,
+                                    body: `{sql:${sql}, res:${rows
+                                        ? JSON.stringify(rows, null, 4)
+                                        : "null"
+                                        }}`,
                                     threadid,
                                     sessionid,
                                     username,
@@ -494,9 +485,8 @@ const fetchByPublished = async ({
     //l(chalk.red('return:', rows ? rows.length : 0))
     await dbLog({
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -528,34 +518,32 @@ const longMigrateQwiketRecords = async ({
     let result, sql
     let povdbSource = await dbGetQuery("povdb", threadid, source)
     let povdbTarget1 = await dbGetQuery("povdb", threadid, target1)
-   // let povdbTarget2 = await dbGetQuery("povdb", threadid, target2)
+    // let povdbTarget2 = await dbGetQuery("povdb", threadid, target2)
     const start = page * size
 
     //sql = `SELECT DISTINCT q.*, t.threadid from  q${slugPrefix} q, pov_threads_view${slugPrefix} t where q.\`key\`=CONCAT(t.threadid,'.qwiket') and t.shared_time>=${published_time} order by t.shared_time limit ${start},${size}`;
-    sql=`SELECT xid from pov_threads_view${slugPrefix} where xid>? limit ${size}`
+    sql = `SELECT xid from pov_threads_view${slugPrefix} where xid>? limit ${size}`
     //sql = `SELECT DISTINCT q.*, t.threadid from  pov_threads_view${slugPrefix} t LEFT OUTER JOIN q${slugPrefix} q on q.\`key\`=CONCAT(t.threadid,'.qwiket') where t.shared_time>=${published_time} order by t.shared_time limit ${start},${size}`
     l(chalk.cyan(sql))
-    let rows = await povdbSource(sql,[start_xid])
+    let rows = await povdbSource(sql, [start_xid])
     //l("rows", page);
     await dbLog({
         show: false,
         type: "SQL",
-        body: `pre-migrate source: {sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `pre-migrate source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
     })
-     l(
+    l(
         chalk.green(
             JSON.stringify(
                 {
                     show: false,
                     type: "SQL",
-                    body: `long-migrate source: {sql:${sql}, res:${
-                        rows ? JSON.stringify(rows, null, 4) : "null"
-                    }}`,
+                    body: `long-migrate source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -565,18 +553,18 @@ const longMigrateQwiketRecords = async ({
             )
         )
     );
-    let xid=0;
+    let xid = 0;
     if (rows && rows.length) {
         let qwikets = []
         for (let i = 0; i < rows.length; i++) {
             // l("first iter", i);
             let row = rows[i]
-            xid=row['xid'];
-            sql= `SELECT DISTINCT q.*, t.threadid from  pov_threads_view${slugPrefix} t LEFT OUTER JOIN q${slugPrefix} q on q.\`key\`=CONCAT(t.threadid,'.qwiket') where t.xid=? limit 1`
-            let rows2 = await povdbSource(sql,[xid])
-           
+            xid = row['xid'];
+            sql = `SELECT DISTINCT q.*, t.threadid from  pov_threads_view${slugPrefix} t LEFT OUTER JOIN q${slugPrefix} q on q.\`key\`=CONCAT(t.threadid,'.qwiket') where t.xid=? limit 1`
+            let rows2 = await povdbSource(sql, [xid])
+
             row = rows2[0]
-         //   l(chalk.yellow("Got full record from the source"),row.threadid,row.xid)
+            //   l(chalk.yellow("Got full record from the source"),row.threadid,row.xid)
             let value = row["value"]
             //  let q = JSON.parse(value);
             //l(chalk.cyan.bold(js({ cat: q["cat"] })));
@@ -595,7 +583,7 @@ const longMigrateQwiketRecords = async ({
                 [keyThreadid]
             )
             rs = rs[0]
-          //  retStart_time=rs['shared_time'];
+            //  retStart_time=rs['shared_time'];
             /* l(chalk.white(JSON.stringify({
                  show: false,
                  type: "SQL",
@@ -608,13 +596,12 @@ const longMigrateQwiketRecords = async ({
 
 
              }, null, 4)))*/
-           // l(chalk.yellow("got source qwiket",js(rs))) ;
+            // l(chalk.yellow("got source qwiket",js(rs))) ;
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, source: {sql:${sql}, res:${
-                    rs ? JSON.stringify(rs, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, source: {sql:${sql}, res:${rs ? JSON.stringify(rs, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -623,14 +610,13 @@ const longMigrateQwiketRecords = async ({
                 `SELECT DISTINCT threadid,FROM_UNIXTIME(published_time) as published from pov_threads_view${slugPrefix} where threadid=?  limit 1`,
                 [keyThreadid]
             )
-            if(rt1&&rt1.length)
-            l(chalk.green("exist target qwiket","has row:",rt1[0]['published'],keyThreadid)) ;
+            if (rt1 && rt1.length)
+                l(chalk.green("exist target qwiket", "has row:", rt1[0]['published'], keyThreadid));
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, target1: {sql:${sql}, res:${
-                    rt1 ? JSON.stringify(rt1, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, target1: {sql:${sql}, res:${rt1 ? JSON.stringify(rt1, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -656,23 +642,17 @@ const longMigrateQwiketRecords = async ({
             if (!rt1 || !rt1.length) {
                 l(chalk.green('new thredid'))
                 let insertSql = `INSERT into pov_threads_view${slugPrefix} (threadid,title,site_name,url,description,locale,identity,image,text,date,published_time,updated_time,shared_by_user_name,category_xid,author,feed,reshare,shared_time,shared_by_identity,shared_by_profileurl,shared_by_avatar,thread,feed_xid,image_src,printurl,video,entity) 
-                VALUES ("${rs["threadid"]}","${rs["title"]}","${
-                    rs["site_name"]
-                }","${rs["url"]}","${rs["description"]}","${rs["locale"]}",
-                "${rs["identity"]}","${rs["image"]}","${rs["text"]}",${
-                    rs["date"]
-                },${rs["published_time"]},${rs["updated_time"]},
-                "${rs["shared_by_user_name"]}",${rs["category_xid"] || 0},"${
-                    rs["author"]
-                }",${rs["feed"]}),${rs["reshare"]},${rs["shared_time"]},
-                "${rs["shared_by_identity"]}","${
-                    rs["shared_by_profileurl"]
-                }","${rs["shared_by_avatar"]}",${rs["thread"]},${
-                    rs["feed_xid"]
-                },
-                "${rs["image_src"]}","${rs["printurl"]}"},${rs["video"]},"${
-                    rs["entity"]
-                }"})`
+                VALUES ("${rs["threadid"]}","${rs["title"]}","${rs["site_name"]
+                    }","${rs["url"]}","${rs["description"]}","${rs["locale"]}",
+                "${rs["identity"]}","${rs["image"]}","${rs["text"]}",${rs["date"]
+                    },${rs["published_time"]},${rs["updated_time"]},
+                "${rs["shared_by_user_name"]}",${rs["category_xid"] || 0},"${rs["author"]
+                    }",${rs["feed"]}),${rs["reshare"]},${rs["shared_time"]},
+                "${rs["shared_by_identity"]}","${rs["shared_by_profileurl"]
+                    }","${rs["shared_by_avatar"]}",${rs["thread"]},${rs["feed_xid"]
+                    },
+                "${rs["image_src"]}","${rs["printurl"]}"},${rs["video"]},"${rs["entity"]
+                    }"})`
                 l(
                     "NEW",
                     insertSql,
@@ -723,9 +703,8 @@ const longMigrateQwiketRecords = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate, target1: {sql:${insertSql}, res:${
-                        res1 ? JSON.stringify(res1, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate, target1: {sql:${insertSql}, res:${res1 ? JSON.stringify(res1, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -745,11 +724,10 @@ const longMigrateQwiketRecords = async ({
                             await dbLog({
                                 show: false,
                                 type: "SQL",
-                                body: `pre-migrate, target1: {sql:${insertSql}, res:${
-                                    res1
-                                        ? JSON.stringify(res1, null, 4)
-                                        : "null"
-                                }}`,
+                                body: `pre-migrate, target1: {sql:${insertSql}, res:${res1
+                                    ? JSON.stringify(res1, null, 4)
+                                    : "null"
+                                    }}`,
                                 threadid,
                                 sessionid,
                                 username,
@@ -761,11 +739,10 @@ const longMigrateQwiketRecords = async ({
                                     {
                                         show: false,
                                         type: "SQL",
-                                        body: `pre-migrate INSERT, target1: {sql:${insertSql}, res:${
-                                            res1
-                                                ? JSON.stringify(res1, null, 4)
-                                                : "null"
-                                        }}`,
+                                        body: `pre-migrate INSERT, target1: {sql:${insertSql}, res:${res1
+                                            ? JSON.stringify(res1, null, 4)
+                                            : "null"
+                                            }}`,
                                         threadid,
                                         sessionid,
                                         username,
@@ -781,9 +758,9 @@ const longMigrateQwiketRecords = async ({
                 }
             }
 
-             l("looping",xid);
+            l("looping", xid);
         }
-       
+
     }
     return xid;
 }
@@ -799,7 +776,7 @@ const migrateQwiketRecords = async ({
     let result, sql
     let povdbSource = await dbGetQuery("povdb", threadid, source)
     let povdbTarget1 = await dbGetQuery("povdb", threadid, target1)
-   // let povdbTarget2 = await dbGetQuery("povdb", threadid, target2)
+    // let povdbTarget2 = await dbGetQuery("povdb", threadid, target2)
     const start = page * size
 
     //sql = `SELECT DISTINCT q.*, t.threadid from  q${slugPrefix} q, pov_threads_view${slugPrefix} t where q.\`key\`=CONCAT(t.threadid,'.qwiket') and t.shared_time>=${published_time} order by t.shared_time limit ${start},${size}`;
@@ -810,22 +787,20 @@ const migrateQwiketRecords = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `pre-migrate source: {sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `pre-migrate source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
     })
-     l(
+    l(
         chalk.green(
             JSON.stringify(
                 {
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate source: {sql:${sql}, res:${
-                        rows ? JSON.stringify(rows, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -870,13 +845,12 @@ const migrateQwiketRecords = async ({
 
 
              }, null, 4)))*/
-            l(chalk.yellow("got source qwiket",js(rs))) ;
+            l(chalk.yellow("got source qwiket", js(rs)));
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, source: {sql:${sql}, res:${
-                    rs ? JSON.stringify(rs, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, source: {sql:${sql}, res:${rs ? JSON.stringify(rs, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -885,13 +859,12 @@ const migrateQwiketRecords = async ({
                 `SELECT DISTINCT threadid from pov_threads_view${slugPrefix} where threadid=?  limit 1`,
                 [keyThreadid]
             )
-            l(chalk.green("got target qwiket",js(rs))) ;
+            l(chalk.green("got target qwiket", js(rs)));
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, target1: {sql:${sql}, res:${
-                    rt1 ? JSON.stringify(rt1, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, target1: {sql:${sql}, res:${rt1 ? JSON.stringify(rt1, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -916,23 +889,17 @@ const migrateQwiketRecords = async ({
             );*/
             if (!rt1 || !rt1.length) {
                 let insertSql = `INSERT into pov_threads_view${slugPrefix} (threadid,title,site_name,url,description,locale,identity,image,text,date,published_time,updated_time,shared_by_user_name,category_xid,author,feed,reshare,shared_time,shared_by_identity,shared_by_profileurl,shared_by_avatar,thread,feed_xid,image_src,printurl,video,entity) 
-                VALUES ("${rs["threadid"]}","${rs["title"]}","${
-                    rs["site_name"]
-                }","${rs["url"]}","${rs["description"]}","${rs["locale"]}",
-                "${rs["identity"]}","${rs["image"]}","${rs["text"]}",${
-                    rs["date"]
-                },${rs["published_time"]},${rs["updated_time"]},
-                "${rs["shared_by_user_name"]}",${rs["category_xid"] || 0},"${
-                    rs["author"]
-                }",${rs["feed"]}),${rs["reshare"]},${rs["shared_time"]},
-                "${rs["shared_by_identity"]}","${
-                    rs["shared_by_profileurl"]
-                }","${rs["shared_by_avatar"]}",${rs["thread"]},${
-                    rs["feed_xid"]
-                },
-                "${rs["image_src"]}","${rs["printurl"]}"},${rs["video"]},"${
-                    rs["entity"]
-                }"})`
+                VALUES ("${rs["threadid"]}","${rs["title"]}","${rs["site_name"]
+                    }","${rs["url"]}","${rs["description"]}","${rs["locale"]}",
+                "${rs["identity"]}","${rs["image"]}","${rs["text"]}",${rs["date"]
+                    },${rs["published_time"]},${rs["updated_time"]},
+                "${rs["shared_by_user_name"]}",${rs["category_xid"] || 0},"${rs["author"]
+                    }",${rs["feed"]}),${rs["reshare"]},${rs["shared_time"]},
+                "${rs["shared_by_identity"]}","${rs["shared_by_profileurl"]
+                    }","${rs["shared_by_avatar"]}",${rs["thread"]},${rs["feed_xid"]
+                    },
+                "${rs["image_src"]}","${rs["printurl"]}"},${rs["video"]},"${rs["entity"]
+                    }"})`
                 l(
                     "NEW",
                     insertSql,
@@ -983,9 +950,8 @@ const migrateQwiketRecords = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate, target1: {sql:${insertSql}, res:${
-                        res1 ? JSON.stringify(res1, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate, target1: {sql:${insertSql}, res:${res1 ? JSON.stringify(res1, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -1005,11 +971,10 @@ const migrateQwiketRecords = async ({
                             await dbLog({
                                 show: false,
                                 type: "SQL",
-                                body: `pre-migrate, target1: {sql:${insertSql}, res:${
-                                    res1
-                                        ? JSON.stringify(res1, null, 4)
-                                        : "null"
-                                }}`,
+                                body: `pre-migrate, target1: {sql:${insertSql}, res:${res1
+                                    ? JSON.stringify(res1, null, 4)
+                                    : "null"
+                                    }}`,
                                 threadid,
                                 sessionid,
                                 username,
@@ -1021,11 +986,10 @@ const migrateQwiketRecords = async ({
                                     {
                                         show: false,
                                         type: "SQL",
-                                        body: `pre-migrate INSERT, target1: {sql:${insertSql}, res:${
-                                            res1
-                                                ? JSON.stringify(res1, null, 4)
-                                                : "null"
-                                        }}`,
+                                        body: `pre-migrate INSERT, target1: {sql:${insertSql}, res:${res1
+                                            ? JSON.stringify(res1, null, 4)
+                                            : "null"
+                                            }}`,
                                         threadid,
                                         sessionid,
                                         username,
@@ -1041,7 +1005,7 @@ const migrateQwiketRecords = async ({
                 }
             }
 
-             l("looping");
+            l("looping");
         }
         return rows.length
     }
@@ -1208,9 +1172,8 @@ const fetchAllDisqus = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1230,9 +1193,8 @@ const fetchAllDisqus = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `{sql:${sql}, res:${
-                    extraRows ? JSON.stringify(extraRows, null, 4) : "null"
-                }}`,
+                body: `{sql:${sql}, res:${extraRows ? JSON.stringify(extraRows, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -1271,6 +1233,314 @@ const fetchAllDisqus = async ({
     }
     return result
 }
+const longMigrateTable = async ({
+    sessionid,
+    threadid,
+    input,
+    username,
+}) => {
+    let { table, start_xid, page, size, source, target } = input
+    const start = page * size
+
+    let xid=0;
+
+    let result, sql, dbSource, dbTarget
+    switch (table) {
+        case 'qwp_posts':
+        case 'qwp_posts_archive':
+        case 'qwp_threads':
+            dbSource = await dbGetQuery("hub1db3", threadid, source)
+            dbTarget = await dbGetQuery("hub1db3", threadid, target)
+            break;
+        case 'pov_topics':
+        case 'pov_threads_map2':
+        case 'pov_users':
+            dbSource = await dbGetQuery("povdb", threadid, source)
+            dbTarget = await dbGetQuery("povdb", threadid, target)
+            break;
+    }
+
+    l(chalk.blue.bold("source:",source,"target:",target))
+
+    //sql = `SELECT DISTINCT q.*, t.threadid from  q${slugPrefix} q, pov_threads_view${slugPrefix} t where q.\`key\`=CONCAT(t.threadid,'.qwiket') and t.shared_time>=${published_time} order by t.shared_time limit ${start},${size}`;
+    sql = `SELECT * from ${table} where xid>? limit ${size}`
+    if (table == 'pov_topics')
+        sql = `SELECT * from ${table} where thread_xid>? limit ${size}`
+    else if (table == 'pov_users')
+        sql = `SELECT * from ${table} where xid>? and username !='anon' limit ${size}`
+    else
+        sql = `SELECT * from ${table} where xid>? limit ${size}`
+
+    //sql = `SELECT DISTINCT q.*, t.threadid from  pov_threads_view${slugPrefix} t LEFT OUTER JOIN q${slugPrefix} q on q.\`key\`=CONCAT(t.threadid,'.qwiket') where t.shared_time>=${published_time} order by t.shared_time limit ${start},${size}`
+    l(chalk.cyan(sql))
+    let rows = await dbSource(sql, [start_xid])
+    //l("rows", page);
+
+   /* l(
+        chalk.green(
+            JSON.stringify(
+                {
+                    show: false,
+                    type: "SQL",
+                    body: `long-migrate ${table} source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                        }}`,
+                    threadid,
+                    sessionid,
+                    username,
+                },
+                null,
+                4
+            )
+        )
+    );*/
+   
+    if (rows && rows.length) {
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            switch (table) {
+                case 'qwp_posts':
+                case 'qwp_posts_archive':
+                    sql = `SELECT xid from ${table} where id=? `
+                    let rowsTarget = await dbTarget(
+                        sql, [row['id']]
+                    )
+                    xid=row['xid'];
+                    l("set xid",xid)
+                    if (rowsTarget && rowsTarget.length) {
+                        l(chalk.red("Qwp post already exists in target", row['id']))
+                    }
+                    else {
+                      
+                        let insertSql = `INSERT INTO ${table} (xid,qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_emai,json,status,state,original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,thread_url,role,updatedat) 
+                        VALUES( ${row["xid"]}, ${row["qforumid"]},"${row["forum"]}", ${row["id"]
+                            }, ${row["parent"]},"${row["message"]}",
+                        ${row["isflagged"]},"${row["thread"]}","${row["raw_message"]
+                            }",${row["createdat"]},${row["isedited"]},${row["ishighlighted"]
+                            },"${row["ipaddress"] || ""}",${row["isspam"]},${row["isdeleted"]
+                            },${row["likes"]},${row["isapproved"]},${row["dislikes"]},"${row["author_username"]
+                            }","${row["author_name"]}","${row["author_url"]}","${row["author_profileurl"]
+                            }","${row["author_emailHash"]}","${row["author_avatar_permalink"]
+                            }","${row["author_avatar_cache"]}","${row["author_id"]}",${row["author_isanonymous"]
+                            },"${row["author_email"]}","${row["json"]}",${row["status"]},"${row["state"]
+                            }","${row["original"]}",${row["movedto_postid"]},${row["children"]
+                            },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${row["watch_ticketid"]
+                            },${row["watch_type"]},"${row["watch_identity"]},"${row["thread_title"]
+                            }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
+                        let res1 = await dbTarget(
+                            `
+                           INSERT INTO ${table} (xid,qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,
+                            ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,
+                            author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_email,json,status,state,
+                            original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,
+                            thread_url,role,updatedat) 
+                        VALUES(?,?,?,?,?,?,?,?,?,?,?,
+                            ?,?,?,?,?,?,?,?,?,?,
+                            ?,?,?,?,?,?,?,?,?,?,
+                            ?,?,?,?,?,?,?,?,?,?,
+                            ?,?,? )
+                            `,
+                            [
+                                row['xid'],
+                                row["qforumid"],
+                                row["forum"],
+                                row["id"],
+                                row["parent"],
+                                row["message"],
+                                row["isflagged"],
+                                row["thread"],
+                                row["raw_message"],
+                                row["createdat"],
+                                row["isedited"],
+                                row["ishighlighted"],
+                                row["ipaddress"] || "",
+                                row["isspam"],
+                                row["isdeleted"],
+                                row["likes"],
+                                row["isapproved"],
+                                row["dislikes"],
+                                row["author_username"],
+                                row["author_name"],
+                                row["author_url"],
+                                row["author_profileurl"],
+                                row["author_emailHash"],
+                                row["author_avatar_permalink"],
+                                row["author_avatar_cache"],
+                                row["author_id"],
+                                row["author_isanonymous"],
+                                row["author_email"],
+                                row["json"],
+                                row["status"],
+                                row["state"],
+                                row["original"],
+                                row["movedto_postid"],
+                                row["children"],
+                                row["v"],
+                                row["ticket_id"],
+                                row["post_ticketid"],
+                                row["watch_ticketid"],
+                                row["watch_type"],
+                                row["watch_identity"],
+                                row["thread_title"],
+                                row["thread_url"],
+                                row["role"],
+                                row["updatedat"],
+                            ]
+                        )
+                        await dbLog({
+                            show: false,
+                            type: "SQL",
+                            body: `long-migrate, target ${table}: {sql:${insertSql}, res:${res1 ? JSON.stringify(res1, null, 4) : "null"
+                                }}`,
+                            threadid,
+                            sessionid,
+                            username,
+                        })
+                    }
+                    break;
+                case 'qwp_threads':
+                    sql = `SELECT xid from ${table} where thread=? `
+                    let rowsTarget2 = await dbTarget(
+                        sql, [row['thread']]
+                    )
+                    //l('rowsTarget2',rowsTarget2.length)
+                    xid=row['xid'];
+                    if (rowsTarget2 && rowsTarget2.length) {
+                        l(chalk.red("Qwp thread already exists in target", row['thread']))
+                    }
+                    else {
+                        let insertSql = `INSERT INTO ${table}
+                            (xid,
+                            thread,
+                            forumid,
+                            url,
+                            title,
+                            lastpost,
+                            status)
+                            VALUES(
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?,
+                            ?);
+                            `;
+                        let res3 = await dbTarget(insertSql, [
+                            row['xid'],
+                            row['thread'],
+                            row['forumid'],
+                            row['url'],
+                            row['title'],
+                            row['lastpost'],
+                            row['status']
+                        ]);
+                        l('inserted ',row['xid'])
+                    }
+                    break;
+                case 'pov_topics':
+                    sql = `SELECT thread_xid from ${table} where thread_xid=? `
+                    let rowsTarget3 = await dbTarget(
+                        sql, [row['thread_xid']]
+                    )
+                    xid=row['thread_xid'];
+                    if (rowsTarget3 && rowsTarget3.length) {
+                        l(chalk.red("pov_topic already exists in target", row['threadid']))
+                    }
+                    else {
+                        let insertSql = `INSERT INTO ${table}
+                            (thread_xid,threadid) VALUES (?,?)
+                            `;
+                        let res3 = await dbTarget(insertSql, [
+                            row['thread_xid'],
+                            row['threadid']
+                        ]);
+                    }
+                    break;
+                case 'pov_threads_map2':
+                    sql = `SELECT xid from ${table} where threadid=? and thread=? `
+                    let rowsTarget4 = await dbTarget(
+                        sql, [row['threadid'], row['thread']]
+                    )
+                    xid=row['xid'];
+                    if (rowsTarget4 && rowsTarget4.length) {
+                        l(chalk.red("pov_thread_map2 already exists in target", row['threadid']))
+                    }
+                    else {
+                        let insertSql = `INSERT INTO ${table}
+                        (xid,thread,channel,threadid,shortname,last_updated,posts_count,last_changed_count,thread_url) VALUES (?,?,?,?,?,?,?,?,?)
+                        `;
+                        let res3 = await dbTarget(insertSql, [
+                            row['xid'],
+                            row['thread'],
+                            row['channel'],
+                            row['threadid'],
+                            row['shortname'],
+                            row['last_updated'],
+                            row['post_count'],
+                            row['last_changed_count'],
+                            row['thread_url'] ? row['thread_url'] : "",
+                        ]);
+                    }
+                    break;
+                case 'pov_users':
+                    sql = `SELECT xid from ${table} where identity=?`
+                    let rowsTarget5 = await dbTarget(
+                        sql, [row['identity'],]
+                    )
+                    xid=row['xid'];
+                    if (rowsTarget5 && rowsTarget5.length) {
+                        l(chalk.red("pov_users already exists in target", row['identity']))
+                    }
+                    else {
+                        let insertSql = `INSERT INTO ${table}
+                        (xid,identity,username,user_name,email,disqus_id,last_login,lang,approver,avatar,
+                            url,profileurl,forum,forumsetting_collapsed,orderby_option,interests_option,advanced_interests_option,jumbo_option,theme,twitter_option,
+                            topics_option,translate_option,nohelp_option,subscr_status,subscr_id,subscr_data,noads_option,nogrid_option,description,user_layout) 
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`;
+                        l(insertSql)
+                        let res3 = await dbTarget(insertSql, [
+                            row['xid'],
+                            row['identity'],
+                            row['username'],
+                            row['user_name'],
+                            row['email'],
+                            row['disqus_id'],
+                            row['last_login'],
+                            row['lang'],
+                            row['approver'],
+                            row['avatar'],
+
+                            row['url'],
+                            row['profileurl'],
+                            row['forum'],
+                            row['forumsetting_collapsed'],
+                            row['orderby_option'],
+                            row['interests_option'],
+                            row['advanced_interests_option'],
+                            row['jumbo_option'],
+                            row['theme'],
+                            row['twitter_option'],
+
+                            row['topics_option'],
+                            row['translate_option'],
+                            row['nohelp_option'],
+                            row['subscr_status'],
+
+                            row['subscr_id'] ? row['subscr_id'] : "",
+                            row['subscr_data'] ? row['subscr_data'] : "",
+                            row['noads_option'],
+                            row['nogrid_option'],
+                            row['description'] ? row['description'] : "",
+                            row['user_layout'] ? row['user_layout'] : "",
+                        ]);
+                    }
+                    break;
+            }
+        }
+    }
+    return xid;
+
+}
 const migrateDisqusRecords = async ({
     sessionid,
     threadid,
@@ -1295,9 +1565,8 @@ const migrateDisqusRecords = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `pre-migrate source: {sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `pre-migrate source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1317,9 +1586,8 @@ const migrateDisqusRecords = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, source: {sql:${sql}, res:${
-                    xr ? JSON.stringify(xr, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, source: {sql:${sql}, res:${xr ? JSON.stringify(xr, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -1332,9 +1600,8 @@ const migrateDisqusRecords = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, target1: {sql:${sql}, res:${
-                    rt1 ? JSON.stringify(rt1, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, target1: {sql:${sql}, res:${rt1 ? JSON.stringify(rt1, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -1361,9 +1628,8 @@ const migrateDisqusRecords = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate, target1: {sql:${insertSql}, res:${
-                        res1 ? JSON.stringify(res1, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate, target1: {sql:${insertSql}, res:${res1 ? JSON.stringify(res1, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -1382,9 +1648,8 @@ const migrateDisqusRecords = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, target2: {sql:${sql}, res:${
-                    rt2 ? JSON.stringify(rt2, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, target2: {sql:${sql}, res:${rt2 ? JSON.stringify(rt2, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -1411,9 +1676,8 @@ const migrateDisqusRecords = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate, target2: {sql:${insertSql}, res:${
-                        res2 ? JSON.stringify(res2, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate, target2: {sql:${insertSql}, res:${res2 ? JSON.stringify(res2, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -1432,41 +1696,28 @@ const migrateDisqusRecords = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, source: {sql:${sql}, res:${
-                    pr1 ? JSON.stringify(pr1, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, source: {sql:${sql}, res:${pr1 ? JSON.stringify(pr1, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
             })
             if (!pr1 || !pr1.length) {
                 let insertSql = `INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_emai,json,status,state,original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,thread_url,role,updatedat) 
-                    VALUES( ${row["qforumid"]},"${row["forum"]}", ${
-                    row["id"]
-                }, ${row["parent"]},"${row["message"]}",
-                    ${row["isflagged"]},"${row["thread"]}","${
-                    row["raw_message"]
-                }",${row["createdat"]},${row["isedited"]},${
-                    row["ishighlighted"]
-                },"${row["ipaddress"] || ""}",${row["isspam"]},${
-                    row["isdeleted"]
-                },${row["likes"]},${row["isapproved"]},${row["dislikes"]},"${
-                    row["author_username"]
-                }","${row["author_name"]}","${row["author_url"]}","${
-                    row["author_profileurl"]
-                }","${row["author_emailHash"]}","${
-                    row["author_avatar_permalink"]
-                }","${row["author_avatar_cache"]}","${row["author_id"]}",${
-                    row["author_isanonymous"]
-                },"${row["author_email"]}","${row["json"]}",${row["status"]},"${
-                    row["state"]
-                }","${row["original"]}",${row["movedto_postid"]},${
-                    row["children"]
-                },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${
-                    row["watch_ticketid"]
-                },${row["watch_type"]},"${row["watch_identity"]},"${
-                    row["thread_title"]
-                }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
+                    VALUES( ${row["qforumid"]},"${row["forum"]}", ${row["id"]
+                    }, ${row["parent"]},"${row["message"]}",
+                    ${row["isflagged"]},"${row["thread"]}","${row["raw_message"]
+                    }",${row["createdat"]},${row["isedited"]},${row["ishighlighted"]
+                    },"${row["ipaddress"] || ""}",${row["isspam"]},${row["isdeleted"]
+                    },${row["likes"]},${row["isapproved"]},${row["dislikes"]},"${row["author_username"]
+                    }","${row["author_name"]}","${row["author_url"]}","${row["author_profileurl"]
+                    }","${row["author_emailHash"]}","${row["author_avatar_permalink"]
+                    }","${row["author_avatar_cache"]}","${row["author_id"]}",${row["author_isanonymous"]
+                    },"${row["author_email"]}","${row["json"]}",${row["status"]},"${row["state"]
+                    }","${row["original"]}",${row["movedto_postid"]},${row["children"]
+                    },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${row["watch_ticketid"]
+                    },${row["watch_type"]},"${row["watch_identity"]},"${row["thread_title"]
+                    }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
                 let res1 = await hub1db3Target1(
                     `
                        INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,
@@ -1529,9 +1780,8 @@ const migrateDisqusRecords = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate, target2: {sql:${insertSql}, res:${
-                        res1 ? JSON.stringify(res1, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate, target2: {sql:${insertSql}, res:${res1 ? JSON.stringify(res1, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -1544,41 +1794,28 @@ const migrateDisqusRecords = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `pre-migrate, source: {sql:${sql}, res:${
-                    pr2 ? JSON.stringify(pr2, null, 4) : "null"
-                }}`,
+                body: `pre-migrate, source: {sql:${sql}, res:${pr2 ? JSON.stringify(pr2, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
             })
             if (!pr2 || !pr2.length) {
                 let insertSql = `INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_emai,json,status,state,original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,thread_url,role,updatedat) 
-                    VALUES( ${row["qforumid"]},"${row["forum"]}", ${
-                    row["id"]
-                }, ${row["parent"]},"${row["message"]}",
-                    ${row["isflagged"]},"${row["thread"]}","${
-                    row["raw_message"]
-                }",${row["createdat"]},${row["isedited"]},${
-                    row["ishighlighted"]
-                },"${row["ipaddress"] || ""}",${row["isspam"]},${
-                    row["isdeleted"]
-                },${row["likes"]},${row["isapproved"]},${row["dislikes"]},"${
-                    row["author_username"]
-                }","${row["author_name"]}","${row["author_url"]}","${
-                    row["author_profileurl"]
-                }","${row["author_emailHash"]}","${
-                    row["author_avatar_permalink"]
-                }","${row["author_avatar_cache"]}","${row["author_id"]}",${
-                    row["author_isanonymous"]
-                },"${row["author_email"]}","${row["json"]}",${row["status"]},"${
-                    row["state"]
-                }","${row["original"]}",${row["movedto_postid"]},${
-                    row["children"]
-                },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${
-                    row["watch_ticketid"]
-                },${row["watch_type"]},"${row["watch_identity"]},"${
-                    row["thread_title"]
-                }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
+                    VALUES( ${row["qforumid"]},"${row["forum"]}", ${row["id"]
+                    }, ${row["parent"]},"${row["message"]}",
+                    ${row["isflagged"]},"${row["thread"]}","${row["raw_message"]
+                    }",${row["createdat"]},${row["isedited"]},${row["ishighlighted"]
+                    },"${row["ipaddress"] || ""}",${row["isspam"]},${row["isdeleted"]
+                    },${row["likes"]},${row["isapproved"]},${row["dislikes"]},"${row["author_username"]
+                    }","${row["author_name"]}","${row["author_url"]}","${row["author_profileurl"]
+                    }","${row["author_emailHash"]}","${row["author_avatar_permalink"]
+                    }","${row["author_avatar_cache"]}","${row["author_id"]}",${row["author_isanonymous"]
+                    },"${row["author_email"]}","${row["json"]}",${row["status"]},"${row["state"]
+                    }","${row["original"]}",${row["movedto_postid"]},${row["children"]
+                    },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${row["watch_ticketid"]
+                    },${row["watch_type"]},"${row["watch_identity"]},"${row["thread_title"]
+                    }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
                 let res2 = await hub1db3Target2(
                     `
                        INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,
@@ -1641,9 +1878,8 @@ const migrateDisqusRecords = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `pre-migrate, target2: {sql:${insertSql}, res:${
-                        res2 ? JSON.stringify(res2, null, 4) : "null"
-                    }}`,
+                    body: `pre-migrate, target2: {sql:${insertSql}, res:${res2 ? JSON.stringify(res2, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -1681,9 +1917,8 @@ const fetchDisqus = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1702,9 +1937,8 @@ const fetchDisqus = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `{sql:${sql}, res:${
-                    extraRows ? JSON.stringify(extraRows, null, 4) : "null"
-                }}`,
+                body: `{sql:${sql}, res:${extraRows ? JSON.stringify(extraRows, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -1763,9 +1997,8 @@ const getTag = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1781,9 +2014,8 @@ const getTag = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `{sql:${sql}, res:${
-                    rows ? JSON.stringify(rows, null, 4) : "null"
-                }}`,
+                body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -1836,9 +2068,8 @@ const fetchTags = async ({
     // l(chalk.grey('return:', rows ? rows.length : 0))
     await dbLog({
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1868,9 +2099,8 @@ const getNextFeed = async ({ threadid, sessionid, username }) => {
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1891,9 +2121,8 @@ const getLegacyFeed = async ({ threadid, sessionid, username, input }) => {
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1919,9 +2148,8 @@ const getLegacyFeed = async ({ threadid, sessionid, username, input }) => {
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -1938,9 +2166,8 @@ const getLegacyFeed = async ({ threadid, sessionid, username, input }) => {
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `{sql:${sql}, res:${
-                    rows ? JSON.stringify(rows, null, 4) : "null"
-                }}`,
+                body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -2030,9 +2257,8 @@ const saveTag = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2050,9 +2276,8 @@ const saveTag = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            result ? JSON.stringify(result, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2071,50 +2296,49 @@ const fetchOutputQueue = async ({
     dbServerName,
 }) => {
     let sql, result
-    l(chalk.green.bold("fetchOutputQueue",dbServerName));
+    l(chalk.green.bold("fetchOutputQueue", dbServerName));
     const now = (Date.now() / 1000) | 0
     let query = await dbGetQuery("povdb", threadid, dbServerName)
     sql = `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by  shared_time limit 140'   //<'${now}'`
     const rows = await query(
         `SELECT shared_time,CONVERT(qwiket USING utf8mb4) as qwiket,qwiketSlug,tagSlug as primaryTag,silo from pov_output_queue order by shared_time limit 140`
-        
+
     )
-    l('SQL:',sql,rows.length)
+    l('SQL:', sql, rows.length)
     //
-   // l(23984, chalk.magenta.bold(js(rows)))
+    // l(23984, chalk.magenta.bold(js(rows)))
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
     })
-    if(rows&&rows.length){
-        for(let i=0;i<rows.length;i++){
-            let slug=rows[i].qwiketSlug
-            l(chalk.green.bold("OUTPUT QUEUE DELETING",slug,`DELETE from pov_output_queue where qwiketSlug='${slug}'`))
-            result = await query(`DELETE from pov_output_queue where qwiketSlug=?`,[slug])
+    if (rows && rows.length) {
+        for (let i = 0; i < rows.length; i++) {
+            let slug = rows[i].qwiketSlug
+            l(chalk.green.bold("OUTPUT QUEUE DELETING", slug, `DELETE from pov_output_queue where qwiketSlug='${slug}'`))
+            result = await query(`DELETE from pov_output_queue where qwiketSlug=?`, [slug])
             l(result)
         }
 
     }
-    
 
-   // sql = `DELETE from pov_output_queue order by shared_time limit 40'  //<${now}`
-   // result = await query(`DELETE from pov_output_queue order by  shared_time limit 40`)
-  /*  await dbLog({
-        show: false,
-        type: "SQL",
-        body: `{sql:${sql}, res:${
-            result ? JSON.stringify(result, null, 4) : "null"
-        }}`,
-        threadid,
-        sessionid,
-        username,
-    })*/
+
+    // sql = `DELETE from pov_output_queue order by shared_time limit 40'  //<${now}`
+    // result = await query(`DELETE from pov_output_queue order by  shared_time limit 40`)
+    /*  await dbLog({
+          show: false,
+          type: "SQL",
+          body: `{sql:${sql}, res:${
+              result ? JSON.stringify(result, null, 4) : "null"
+          }}`,
+          threadid,
+          sessionid,
+          username,
+      })*/
 
     return rows
 }
@@ -2147,9 +2371,8 @@ const outputQueue = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows1 ? JSON.stringify(rows1, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows1 ? JSON.stringify(rows1, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2171,9 +2394,8 @@ const outputQueue = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows2 ? JSON.stringify(rows2, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows2 ? JSON.stringify(rows2, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2190,9 +2412,8 @@ const outputQueue = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows3 ? JSON.stringify(rows3, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows3 ? JSON.stringify(rows3, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2207,9 +2428,8 @@ const outputQueue = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows4 ? JSON.stringify(rows4, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows4 ? JSON.stringify(rows4, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2247,9 +2467,8 @@ const outputQueue = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            result ? JSON.stringify(result, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2326,8 +2545,8 @@ const save = async ({
     sharedByName = sharedByName
         ? sharedByName
         : sharedBySlug
-        ? sharedBySlug
-        : username
+            ? sharedBySlug
+            : username
     sharedBySlug = sharedBySlug ? sharedBySlug : username
     created = created ? created : utime
     createdBy = createdBy ? createdBy : username
@@ -2346,9 +2565,8 @@ const save = async ({
             show: false,
             query,
             type: "SQL",
-            body: `{sql:${sql}, res:${
-                rows ? JSON.stringify(rows, null, 4) : "null"
-            }}`,
+            body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                }}`,
             threadid,
             sessionid,
             username,
@@ -2402,9 +2620,8 @@ const save = async ({
                     await dbLog({
                         show: false,
                         type: "XSQL",
-                        body: `{sql:${sql}, res:${
-                            x ? JSON.stringify(x, null, 4) : "null"
-                        }}`,
+                        body: `{sql:${sql}, res:${x ? JSON.stringify(x, null, 4) : "null"
+                            }}`,
                         threadid,
                         sessionid,
                         username,
@@ -2414,9 +2631,8 @@ const save = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `{sql:${sql}, res:${
-                        result ? JSON.stringify(result, null, 4) : "null"
-                    }}`,
+                    body: `{sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -2472,9 +2688,8 @@ const save = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            result ? JSON.stringify(result, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2491,9 +2706,8 @@ const save = async ({
         await dbLog({
             show: false,
             type: "SQL",
-            body: `{sql:${sql}, res:${
-                rows ? JSON.stringify(rows, null, 4) : "null"
-            }}`,
+            body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                }}`,
             threadid,
             sessionid,
             username,
@@ -2508,9 +2722,8 @@ const save = async ({
             await dbLog({
                 show: false,
                 type: "SQL",
-                body: `{sql:${sql}, res:${
-                    result ? JSON.stringify(result, null, 4) : "null"
-                }}`,
+                body: `{sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+                    }}`,
                 threadid,
                 sessionid,
                 username,
@@ -2533,9 +2746,8 @@ const save = async ({
                 await dbLog({
                     show: false,
                     type: "SQL",
-                    body: `{sql:${sql}, res:${
-                        result ? JSON.stringify(result, null, 4) : "null"
-                    }}`,
+                    body: `{sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+                        }}`,
                     threadid,
                     sessionid,
                     username,
@@ -2565,21 +2777,18 @@ const checkUrl = async ({
     //  l("checkUrl", silo);
     //  for (var i = 0; i < 6; i++) {
     let i = silo
-    sql = `SELECT threadid as slug, published_time,shared_time,title,description,author,image from pov_threads_view${
-        i ? i : ""
-    } where url='${url}' limit 1`
+    sql = `SELECT threadid as slug, published_time,shared_time,title,description,author,image from pov_threads_view${i ? i : ""
+        } where url='${url}' limit 1`
     let rows = await query(
-        `SELECT threadid as slug , published_time,shared_time,title,description,author,image from pov_threads_view${
-            i ? i : ""
+        `SELECT threadid as slug , published_time,shared_time,title,description,author,image from pov_threads_view${i ? i : ""
         } where url=? limit 1`,
         [url]
     )
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -2598,9 +2807,8 @@ const checkUrl = async ({
         await dbLog({
             show: false,
             type: "SQL",
-            body: `{sql:${sql}, res:${
-                rows ? JSON.stringify(rows, null, 4) : "null"
-            }}`,
+            body: `{sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                }}`,
             threadid,
             sessionid,
             username,
@@ -2625,6 +2833,7 @@ const checkUrl = async ({
 export default {
     migrateQwiketRecords,
     longMigrateQwiketRecords,
+    longMigrateTable,
     migrateDisqusRecords,
     getNextFeed,
     getLegacyFeed,

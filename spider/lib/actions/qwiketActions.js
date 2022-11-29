@@ -22,7 +22,39 @@ const dbTargetServerNameX2 = process.env.DB_HOST_SILO5_SECONDARY;
 
 const PAGE_SIZE = 10;
 const TOTAL_SIZE = 1000;
+const longMigrateTable= async ({
+    table,
+    start_xid,
+    index,
+    sessionid,
+    threadid,
+    username,
+}) => {
+    const size = 50;
+    //let cont = 1;
+    let page = 0;
+   
+    try {
+         start_xid = await dbQwiket.longMigrateTable({
+            sessionid,
+            threadid,
+            username,
+            input: {
+                table,
+                start_xid: start_xid,
+                page,
+                size,
+                source: process.env.DB_HOST_SILO5_PRIMARY,
+                target1: process.env.DB_HOST_PRIMARY,
 
+            },
+        });
+    } catch (x) {
+        l(chalk.red(`9987`, x));
+    }
+    l("returning",start_xid)
+    return start_xid;
+};
 const longMigrateQwikets = async ({
     slugPrefix,
     start_xid,
@@ -46,7 +78,7 @@ const longMigrateQwikets = async ({
                 page,
                 size,
                 source: process.env.DB_HOST_SILO5_PRIMARY,
-                target1: process.env.DB_HOST_PRIMARY,
+                target: process.env.DB_HOST_PRIMARY,
 
             },
         });
@@ -940,5 +972,6 @@ export default {
     qwiketTagsQuery,
     getTag,
     preMigrateQwikets,
-    longMigrateQwikets
+    longMigrateQwikets,
+    longMigrateTable
 };

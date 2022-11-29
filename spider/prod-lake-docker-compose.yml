@@ -187,5 +187,129 @@ services:
         env_file:
             - prod-spider.env
         restart: unless-stopped
-        
-
+    table-migrate-prod-posts:
+        image: "hudsonwilde/lake-spider-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+       
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: table-migrate-prod-posts
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - LONG_TABLE_POSTS=1
+            
+        env_file:
+            - prod-spider.env
+        restart: unless-stopped
+    table-migrate-prod-posts-archive:
+        image: "hudsonwilde/lake-spider-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+       
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: table-migrate-prod-posts-archive
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - LONG_TABLE_POSTS_ARCHIVE=1
+            
+        env_file:
+            - prod-spider.env
+        restart: unless-stopped
+    table-migrate-prod-threads:
+        image: "hudsonwilde/lake-spider-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+       
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: table-migrate-prod-threads
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - LONG_TABLE_THREADS=1
+            
+        env_file:
+            - prod-spider.env
+        restart: unless-stopped    
+    table-migrate-prod-topics:
+        image: "hudsonwilde/lake-spider-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+       
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: table-migrate-prod-topics
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - LONG_TABLE_TOPICS=1
+            
+        env_file:
+            - prod-spider.env
+        restart: unless-stopped
+    table-migrate-prod-threads_map2:
+        image: "hudsonwilde/lake-spider-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+       
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: table-migrate-prod-threads_map2
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - LONG_TABLE_THREADS_MAP2=1
+            
+        env_file:
+            - prod-spider.env
+        restart: unless-stopped 
+    table-migrate-prod-users:
+        image: "hudsonwilde/lake-spider-prod"
+       # stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+       
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: table-migrate-prod-users
+        volumes:
+            - ".:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - LONG_TABLE_USERS=1
+            
+        env_file:
+            - prod-spider.env
+        restart: unless-stopped       

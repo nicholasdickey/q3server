@@ -26,6 +26,7 @@ const {
     runPreMigrate,
     runLongMigrate,
     runIndexQwikets,
+    runLongMigrateTable
 } = feedActions
 import { l, chalk, allowLog, sleep,js } from "./lib/common.js"
 //import { loadCDN } from "./cdn.mjs"
@@ -157,6 +158,84 @@ if (process.env.PRE_MIGRATE == 1) {
         threadid: "server.js3",
         username: "server.js",
     })
+}
+if (process.env.LONG_TABLE_POSTS == 1) {
+    allowLog()
+   await  runLongMigrateTable({
+        //db only, two days
+        sessionid: "server.js",
+        threadid:`server.js11-${threadid1}`,
+        username: "server.js",
+        table:'qwp_posts'
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    sleep(1000)
+    exit();
+}
+if (process.env.LONG_TABLE_POSTS_ARCHIVE == 1) {
+    allowLog()
+   await  runLongMigrateTable({
+        //db only, two days
+        sessionid: "server.js",
+        threadid:`server.js11-${threadid1}`,
+        username: "server.js",
+        table:'qwp_posts_archive'
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    sleep(1000)
+    exit();
+}
+if (process.env.LONG_TABLE_THREADS == 1) {
+    allowLog()
+   await  runLongMigrateTable({
+        //db only, two days
+        sessionid: "server.js",
+        threadid:`server.js11-${threadid1}`,
+        username: "server.js",
+        table:'qwp_threads'
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    sleep(1000)
+    exit();
+}
+if (process.env.LONG_TABLE_TOPICS == 1) {
+    allowLog()
+   await  runLongMigrateTable({
+        //db only, two days
+        sessionid: "server.js",
+        threadid:`server.js11-${threadid1}`,
+        username: "server.js",
+        table:'pov_topics'
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    sleep(1000)
+    exit();
+}
+if (process.env.LONG_TABLE_THREADS_MAP2 == 1) {
+    allowLog()
+    await  runLongMigrateTable({
+        //db only, two days
+        sessionid: "server.js",
+        threadid:`server.js11-${threadid1}`,
+        username: "server.js",
+        table:'pov_threads_map2'
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    sleep(1000)
+    exit();
+}
+if (process.env.LONG_TABLE_USERS== 1) {
+    allowLog()
+   await  runLongMigrateTable({
+        //db only, two days
+        sessionid: "server.js",
+        threadid:`server.js11-${threadid1}`,
+        username: "server.js",
+        table:'pov_users'
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    sleep(1000)
+    exit();
 }
 if (process.env.LONG_MIGRATE2022_51 == 1) {
     allowLog()
