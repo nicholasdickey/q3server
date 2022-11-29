@@ -1,9 +1,9 @@
 // ./reindex.js
 //import("dotenv").config();
 //require = require("esm")(module /*, options*/ )
-import { l, chalk, microtime, allowLog } from "./common.js"
+import { l, chalk, microtime, allowLog } from "./lib/common.js"
 
-import rules from "./rules.js"
+import rules from "./lib/rules.js"
 
 //node script to be run from the terminal or pm2
 

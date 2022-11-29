@@ -15,6 +15,7 @@ function func({
 }) {
     try {
         //========================"
+        item.site_name = `The Epoch Times`;
         item.author = $(".left_col .upper_row .author_name").text();
         let b = $(".post_content");
         b.find(`.author_twitter`).remove();
@@ -48,7 +49,7 @@ function func({
             );
         });
         item.body = b.html();
-
+  
         resolve(item);
         //==================================================================================
     } catch (x) {

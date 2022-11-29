@@ -62,3 +62,5 @@ OUTPUTFILE=1 NOTOR=1 node ./runFeed.js frontpagemag https://www.frontpagemag.com
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js huffpo https://www.huffpost.com/entry/anderson-cooper-loves-being-dad_n_5fe148b2c5b6e1ce83351fc7 huffpo
 
 #CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js foreignpolicy https://foreignpolicy.com/2022/10/10/russia-ukraine-bridge-explosion-putin-war-revenge-attack/ foreignpolicy
+
+CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js townhall https://townhall.com/columnists/isabellemorales/2022/11/29/house-gop-should-ban-earmarks-n2616470/ townhall
