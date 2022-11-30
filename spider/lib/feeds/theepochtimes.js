@@ -17,6 +17,8 @@ function func({
         //========================"
         item.site_name = `The Epoch Times`;
         item.author = $(".left_col .upper_row .author_name").text();
+        if (item.title.indexOf('Epoch')>=0)
+            return reject(item)
         let b = $(".post_content");
         b.find(`.author_twitter`).remove();
         let c = b.find(`img.lazy`);
