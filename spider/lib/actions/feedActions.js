@@ -994,7 +994,7 @@ const pushOutputQwiket = async ({
     let { qwiket, silo, primaryTag, now } = input
     let { url, shared_time } = qwiket
     let result
-    l("pushOutputQwiket")
+    l("pushOutputQwiket",qwiket)
     if (silo == 5) {
         if (qwiket) {
             let check = await dbQwiket.checkUrl({
@@ -1005,7 +1005,7 @@ const pushOutputQwiket = async ({
                 dbServerName: dbServerSilo5X1,
             })
             if (!check.success) {
-                qwiket = processExistingQwiket({ qwiket, xQwiket: check, now })
+                qwiket = await processExistingQwiket({ qwiket, xQwiket: check, now })
                 if (!qwiket) return false
             }
             check = await dbQwiket.checkUrl({
@@ -1016,7 +1016,7 @@ const pushOutputQwiket = async ({
                 dbServerName: dbServerSilo5X1,
             })
             if (!check.success) {
-                qwiket = processExistingQwiket({ qwiket, xQwiket: check, now })
+                qwiket =await  processExistingQwiket({ qwiket, xQwiket: check, now })
                 if (!qwiket) return false
             }
             check = await dbQwiket.checkUrl({
@@ -1027,11 +1027,12 @@ const pushOutputQwiket = async ({
                 dbServerName: dbServerSilo5X1,
             })
             if (!check.success) {
-                qwiket = processExistingQwiket({ qwiket, xQwiket: check, now })
+                qwiket =await  processExistingQwiket({ qwiket, xQwiket: check, now })
                 if (!qwiket) return false
             }
 
             qwiket.xid = 0
+            l("qwiket stage 2",qwiket)
             //item.category_xid = category_xid;
             //  l(chalk.yellow(js({ category_xid })));
             let alt_categories = []
@@ -1061,13 +1062,14 @@ const pushOutputQwiket = async ({
                     qwiket.alt_categories = alt_categories
                 }
             }
+            l("qwiket stage 3",qwiket)
             qwiket.accepted = 1
             if (qpostid) qwiket.qpostid = qpostid
             qwiket.s_un = username
             qwiket.date = qwiket.shared_time
             qwiket.sort = qwiket.shared_time
             qwiket.primary = 1
-            l(chalk.yellow.bold("SILO 5 PUSHING" /*, js(qwiket)*/))
+            l(chalk.yellow.bold("SILO 5 PUSHING" , js(qwiket)))
             const redis = await getRedisClient({ server: process.env.REDIS_SILO5_SERVER_X, port: process.env.REDIS_SILO5_PORT_X, x: true });
             const localRedis = await getRedisClient({ });
 
@@ -1080,7 +1082,7 @@ const pushOutputQwiket = async ({
                      value: js(qwiket),
                      logContext,
                  })*/
-                l('redis.lpush')
+                l('redis.lpush',js(qwiket))
                 await redis.lpush(
                     `items_output`,
                     js(qwiket)
