@@ -1255,6 +1255,7 @@ const longMigrateTable = async ({
         case 'pov_topics':
         case 'pov_threads_map2':
         case 'pov_users':
+       
             dbSource = await dbGetQuery("povdb", threadid, source)
             dbTarget = await dbGetQuery("povdb", threadid, target)
             break;

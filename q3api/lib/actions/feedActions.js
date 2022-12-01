@@ -1069,6 +1069,7 @@ const pushOutputQwiket = async ({
             qwiket.primary = 1
             l(chalk.yellow.bold("SILO 5 PUSHING" /*, js(qwiket)*/))
             const redis = await getRedisClient({ server: process.env.REDIS_SILO5_SERVER_X, port: process.env.REDIS_SILO5_PORT_X, x: true });
+            const localRedis = await getRedisClient({ });
 
             try {
                 /* await redis.lpush({
@@ -1081,6 +1082,10 @@ const pushOutputQwiket = async ({
                  })*/
                 l('redis.lpush')
                 await redis.lpush(
+                    `items_output`,
+                    js(qwiket)
+                )
+                await localRedis.lpush(
                     `items_output`,
                     js(qwiket)
                 )
@@ -1110,6 +1115,7 @@ const pushOutputQwiket = async ({
             }
             finally {
                 redis.quit();
+                localRedis.quit();
             }
         }
     }

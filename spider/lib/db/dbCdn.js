@@ -1,8 +1,8 @@
 //require("dotenv").config();
 //const slugify = require("slugify");
-import { l, chalk, microtime, ds } from "../common.js";
+import { l, chalk, microtime, ds, js } from "../common.js";
 import { dbGetQuery, dbLog, slugify } from "../db.js";
-import {UploadClient} from '@uploadcare/upload-client'
+import { UploadClient } from '@uploadcare/upload-client'
 const publicKey = process.env.CDNKEY
 const init = async ({ threadid, sessionid, username, dbServerName, input }) => {
     let sql, result, rows;
@@ -18,9 +18,8 @@ const init = async ({ threadid, sessionid, username, dbServerName, input }) => {
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -35,22 +34,22 @@ const init = async ({ threadid, sessionid, username, dbServerName, input }) => {
         };
     }
     const client = new UploadClient({ publicKey })
-    const file=await client.uploadFile(image);
-    const tgtImage=`https://ucarecdn.com/${file.uuid}/`;
-    l(chalk.red.bold("NEW CDN:",file.uuid))
-   /* let extw = image.split(".");
-    console.log("!!!!!!!!!!!!!!!! extw", JSON.stringify(extw), image);
-    let ext = extw[extw.length - 1];
-    let name = extw
-        .slice(0, extw.length - 1)
-        .join("_")
-        .replace(/ /g, "_")
-        .replace(/https:/g, "")
-        .replace(/http:/g, "")
-        .replace(/\//g, "");
-    ext = ext.split("?")[0];
-
-    const tgtImage = `/cdn/x/${slugify(name, { lower: true })}.${ext}`;*/
+    const file = await client.uploadFile(image);
+    const tgtImage = `https://ucarecdn.com/${file.uuid}/`;
+    l(chalk.red.bold("NEW CDN:", file.uuid))
+    /* let extw = image.split(".");
+     console.log("!!!!!!!!!!!!!!!! extw", JSON.stringify(extw), image);
+     let ext = extw[extw.length - 1];
+     let name = extw
+         .slice(0, extw.length - 1)
+         .join("_")
+         .replace(/ /g, "_")
+         .replace(/https:/g, "")
+         .replace(/http:/g, "")
+         .replace(/\//g, "");
+     ext = ext.split("?")[0];
+ 
+     const tgtImage = `/cdn/x/${slugify(name, { lower: true })}.${ext}`;*/
     l("tgtImage", tgtImage);
     sql = `INSERT INTO pov_v10_cdn (image,image_src,status) VALUES ('${tgtImage}','${image}',0)`;
     result = await query(
@@ -60,9 +59,8 @@ const init = async ({ threadid, sessionid, username, dbServerName, input }) => {
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            result ? JSON.stringify(result, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -76,6 +74,41 @@ const init = async ({ threadid, sessionid, username, dbServerName, input }) => {
     }
     return { success: false, result };
 };
+const migrateCatImages = async ({
+    threadid,
+    sessionid,
+    username,
+    dbServerName,
+
+}) => {
+    let sql, result, rows;
+    let query = await dbGetQuery("povdb", threadid, dbServerName);
+    sql = `SELECT * from pov_categories where icon like '/cdn%' limit 10000;`;
+    l("sql:", sql)
+    rows = await query(sql);
+    if (rows && rows.length) {
+        l("got rows from pov_categproes")
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const shortname = row['shortname'];
+            const icon = `https://qwiket.com${row['icon']}`;
+            l("icon:", icon)
+            try {
+                const result = await init({ threadid, sessionid, username, dbServerName, input: { image: icon } })
+                l("result from init:", js(result))
+                if (result.success) {
+                    const image = result.image;
+                    sql = `UPDATE pov_categories set icon=? where shortname=?`;
+                    await query(sql, [image, shortname]);
+                    l("after update")
+                }
+            }
+            catch (x) {
+                l(chalk.red.bold(x))
+            }
+        }
+    }
+}
 const getImageSrc = async ({
     threadid,
     sessionid,
@@ -91,9 +124,8 @@ const getImageSrc = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -121,9 +153,8 @@ const updateStatus = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -138,9 +169,8 @@ const updateStatus = async ({
         await dbLog({
             show: false,
             type: "SQL",
-            body: `{server:${dbServerName},sql:${sql}, res:${
-                result ? JSON.stringify(result, null, 4) : "null"
-            }}`,
+            body: `{server:${dbServerName},sql:${sql}, res:${result ? JSON.stringify(result, null, 4) : "null"
+                }}`,
             threadid,
             sessionid,
             username,
@@ -170,9 +200,8 @@ const getOldLoaded = async ({
     await dbLog({
         show: false,
         type: "SQL",
-        body: `{server:${dbServerName},sql:${sql}, res:${
-            rows ? JSON.stringify(rows, null, 4) : "null"
-        }}`,
+        body: `{server:${dbServerName},sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+            }}`,
         threadid,
         sessionid,
         username,
@@ -190,4 +219,5 @@ export default {
     getImageSrc,
     updateStatus,
     getOldLoaded,
+    migrateCatImages
 };

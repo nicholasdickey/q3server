@@ -30,7 +30,7 @@ const longMigrateTable= async ({
     threadid,
     username,
 }) => {
-    const size = 50;
+    const size = 500;
     //let cont = 1;
     let page = 0;
    
@@ -63,7 +63,7 @@ const longMigrateQwikets = async ({
     threadid,
     username,
 }) => {
-    const size = 50;
+    const size = 500;
     //let cont = 1;
     let page = 0;
    
