@@ -17,7 +17,7 @@
 
 #node ./runFeed.js gatewaypundit https://www.thegatewaypundit.com/2020/03/ice-detainee-released-after#-testing-positive-for-coronavirus/ gatewaypundit
 #OUTPUTFILE=1 NOTOR=1 node ./runFeed.js zerohedge https://www.zerohedge.com/news/2022-06-15/americas-big-cities-gripped-crime-disorder-decline zerohedge
-OUTPUTFILE=1 NOTOR=1 node ./runFeed.js frontpagemag https://www.frontpagemag.com/busted-chinas-attempt-to-warp-the-2022-midterm-election/ frontpagemag
+#OUTPUTFILE=1 NOTOR=1 node ./runFeed.js frontpagemag https://www.frontpagemag.com/busted-chinas-attempt-to-warp-the-2022-midterm-election/ frontpagemag
 #OUTPUTFILE=1 NOTOR=1 node ./runFeed.js takis https://www.takimag.com/article/the-week-that-perished-189/ takis
 #OUTPUTFILE=1 NOTOR=1 node ./runFeed.js theeconomist https://www.economist.com/leaders/2022/10/13/an-obsession-with-control-is-making-china-weaker-but-more-dangerous theeconomist
 #node ./runFeed.js frontpagemag https://www.frontpagemag.com/point/ frontpagemag
@@ -54,7 +54,7 @@ OUTPUTFILE=1 NOTOR=1 node ./runFeed.js frontpagemag https://www.frontpagemag.com
 #OUTPUTFILE=1 NOTOR=0  node ./runFeed.js thetimes  https://www.thetimes.co.uk/article/kwasi-kwarteng-thinks-liz-truss-will-be-gone-within-weeks-mbb6qbhlv thetimes
 
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js freebeacon https://freebeacon.com/campus/how-georgetown-law-school-used-ilya-shapiros-apology-against-him/ freebeacon 
-#OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nyt https://www.nytimes.com/2022/06/20/business/economy/forced-labor-china-supply-chain.html nyt
+OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nyt https://www.nytimes.com/2022/12/01/us/politics/obama-warnock-georgia-runoff.html? nyt
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js cnn https://www.cnn.com/2022/06/20/politics/texas-gop-convention-resolution/index.html cnn
 
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js abcnews https://abcnews.go.com/Business/higher-interest-rates-good/story?id=85460791 abcnews
@@ -63,4 +63,5 @@ OUTPUTFILE=1 NOTOR=1 node ./runFeed.js frontpagemag https://www.frontpagemag.com
 
 #CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js foreignpolicy https://foreignpolicy.com/2022/10/10/russia-ukraine-bridge-explosion-putin-war-revenge-attack/ foreignpolicy
 
-CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js townhall https://townhall.com/columnists/isabellemorales/2022/11/29/house-gop-should-ban-earmarks-n2616470/ townhall
+#CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js townhall https://townhall.com/columnists/isabellemorales/2022/11/29/house-gop-should-ban-earmarks-n2616470/ townhall
+#CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js dailywire https://www.dailywire.com/news/female-co-hosts-tag-team-don-lemon-for-daring-to-defend-mens-soccer-team/ dailywire

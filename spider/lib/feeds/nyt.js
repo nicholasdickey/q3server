@@ -60,7 +60,8 @@ fetch(item.url).then((response)=>{
         let b = $("section[name='articleBody']");
         b.find("aside").remove();
         b.find("section.interactive-content").remove();
-        //item.body = b.html();
+        l("body=",b.text())
+        item.body = b.html();
 
         resolve(item);
         /*item.site_name="Barron's"

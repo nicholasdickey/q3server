@@ -14,6 +14,12 @@ function func({
         //========================
         //v 002
         if (item.title == `Daily Wire`) return reject(item);
+        let script=$('script').first().text();
+        let parsedScript=JSON.parse(script)
+        l(parsedScript)
+        item.author=parsedScript.author.name;
+        item.description=parsedScript.description;
+        l(chalk.yellow.bold("description=",item.description))
         item.title = item.title
             .replace(/&#8212/g, "—")
             .replace(/\\u201d/g, "”")
@@ -26,7 +32,7 @@ function func({
         item.site_name = `Daily Wire`;
         let publishedTime = $(`meta[name="parsely-pub-date"]`).attr(`content`);
         item.published_time = (Date.parse(publishedTime) / 1000) | 0;
-        item.author = $(`.ewumbai9 a`).text();
+        //item.author = $(`.ewumbai9 a`).text();
         var src = $(`iframe[src*="youtube"]`).attr("src");
         // log("src=", src);
         if (src) {
@@ -37,7 +43,7 @@ function func({
             var target = this;
             return target.replace(new RegExp(search, `g`), replacement);
         };
-        item.author = $(`a.css-1fiqxb5`).text();
+       // item.author = $(`a.css-1fiqxb5`).text();
         let b = $(`#post-body-text`);
 
         // b.find(`div`).remove();
@@ -56,6 +62,7 @@ function func({
                     .replace(/<(\s*?)\/span(\s*?)>/g, ``);
         });
         item.body = fullHtml;
+        l("item=",item)
         return resolve(item);
         //==================================================================================
     } catch (x) {
