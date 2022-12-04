@@ -200,7 +200,7 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                                 return;
                             };
                             let value = await redis.get(key);
-                            if (value == 1 && !process.env.FEED2022) {
+                            if (value == 1 && !process.env.FEED2022&&process.env.FEED_TIMEOUT<500000) {
                                 l(
                                     chalk.green.bold(
                                         "rss key less than an hour old, skipping"
