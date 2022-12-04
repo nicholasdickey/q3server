@@ -1799,7 +1799,7 @@ const runFeedsAction = async ({ silo, sessionid, threadid, username, feedName })
                                 js({ ago })
                             )
                         )
-                        if (ago < 300 || feed.minTimeout * 60 * 1000 > process.env.FEED_TIMEOUT) return
+                        if (process.env.FEED_TIMEOUT<500000&&ago < 300 || feed.minTimeout * 60 * 1000 > process.env.FEED_TIMEOUT) return
                         l(
                             chalk.blue.bold(
                                 "=============>>>>feed:",
