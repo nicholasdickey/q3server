@@ -316,14 +316,15 @@ if (process.env.PRE_MIGRATE2022 == 1) {
         threadid: `server.js12-${threadid1}`,
         username: "server.js",
     })
-    dbEnd(`server.js12-${threadid1}`)
-    exit();
-    /*
+  
+    
    console.log("runDisqus ")
-   runDisqus({
+   await runDisqus({
        sessionid: "server.js",
        threadid: "server.js3",
        username: "server.js",
-   }) */
+   })
+   dbEnd(`server.js12-${threadid1}`)
+   exit(); 
 }
 

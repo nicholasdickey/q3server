@@ -1242,7 +1242,7 @@ const longMigrateTable = async ({
     let { table, start_xid, page, size, source, target } = input
     const start = page * size
 
-    let xid=0;
+    let xid = 0;
 
     let result, sql, dbSource, dbTarget
     switch (table) {
@@ -1255,13 +1255,13 @@ const longMigrateTable = async ({
         case 'pov_topics':
         case 'pov_threads_map2':
         case 'pov_users':
-       
+
             dbSource = await dbGetQuery("povdb", threadid, source)
             dbTarget = await dbGetQuery("povdb", threadid, target)
             break;
     }
 
-    l(chalk.blue.bold("source:",source,"target:",target))
+    l(chalk.blue.bold("source:", source, "target:", target))
 
     //sql = `SELECT DISTINCT q.*, t.threadid from  q${slugPrefix} q, pov_threads_view${slugPrefix} t where q.\`key\`=CONCAT(t.threadid,'.qwiket') and t.shared_time>=${published_time} order by t.shared_time limit ${start},${size}`;
     sql = `SELECT * from ${table} where xid>? limit ${size}`
@@ -1277,24 +1277,24 @@ const longMigrateTable = async ({
     let rows = await dbSource(sql, [start_xid])
     //l("rows", page);
 
-   /* l(
-        chalk.green(
-            JSON.stringify(
-                {
-                    show: false,
-                    type: "SQL",
-                    body: `long-migrate ${table} source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
-                        }}`,
-                    threadid,
-                    sessionid,
-                    username,
-                },
-                null,
-                4
-            )
-        )
-    );*/
-   
+    /* l(
+         chalk.green(
+             JSON.stringify(
+                 {
+                     show: false,
+                     type: "SQL",
+                     body: `long-migrate ${table} source: {sql:${sql}, res:${rows ? JSON.stringify(rows, null, 4) : "null"
+                         }}`,
+                     threadid,
+                     sessionid,
+                     username,
+                 },
+                 null,
+                 4
+             )
+         )
+     );*/
+
     if (rows && rows.length) {
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
@@ -1305,13 +1305,13 @@ const longMigrateTable = async ({
                     let rowsTarget = await dbTarget(
                         sql, [row['id']]
                     )
-                    xid=row['xid'];
-                    l("set xid",xid)
+                    xid = row['xid'];
+                    l("set xid", xid)
                     if (rowsTarget && rowsTarget.length) {
                         l(chalk.red("Qwp post already exists in target", row['id']))
                     }
                     else {
-                      
+
                         let insertSql = `INSERT INTO ${table} (xid,qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_emai,json,status,state,original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,thread_url,role,updatedat) 
                         VALUES( ${row["xid"]}, ${row["qforumid"]},"${row["forum"]}", ${row["id"]
                             }, ${row["parent"]},"${row["message"]}",
@@ -1404,7 +1404,7 @@ const longMigrateTable = async ({
                         sql, [row['thread']]
                     )
                     //l('rowsTarget2',rowsTarget2.length)
-                    xid=row['xid'];
+                    xid = row['xid'];
                     if (rowsTarget2 && rowsTarget2.length) {
                         l(chalk.red("Qwp thread already exists in target", row['thread']))
                     }
@@ -1435,7 +1435,7 @@ const longMigrateTable = async ({
                             row['lastpost'],
                             row['status']
                         ]);
-                        l('inserted ',row['xid'])
+                        l('inserted ', row['xid'])
                     }
                     break;
                 case 'pov_topics':
@@ -1443,7 +1443,7 @@ const longMigrateTable = async ({
                     let rowsTarget3 = await dbTarget(
                         sql, [row['thread_xid']]
                     )
-                    xid=row['thread_xid'];
+                    xid = row['thread_xid'];
                     if (rowsTarget3 && rowsTarget3.length) {
                         l(chalk.red("pov_topic already exists in target", row['threadid']))
                     }
@@ -1462,7 +1462,7 @@ const longMigrateTable = async ({
                     let rowsTarget4 = await dbTarget(
                         sql, [row['threadid'], row['thread']]
                     )
-                    xid=row['xid'];
+                    xid = row['xid'];
                     if (rowsTarget4 && rowsTarget4.length) {
                         l(chalk.red("pov_thread_map2 already exists in target", row['threadid']))
                     }
@@ -1488,7 +1488,7 @@ const longMigrateTable = async ({
                     let rowsTarget5 = await dbTarget(
                         sql, [row['identity'],]
                     )
-                    xid=row['xid'];
+                    xid = row['xid'];
                     if (rowsTarget5 && rowsTarget5.length) {
                         l(chalk.red("pov_users already exists in target", row['identity']))
                     }
@@ -1548,16 +1548,16 @@ const migrateDisqusRecords = async ({
     input,
     username,
 }) => {
-    let { start_time, page, size, source, target1, target2 } = input
+    let { start_time, page, size, source, target } = input
     const start = page * size
-    let targets = [target1, target2]
+    // let targets = [target1]
     let result, sql
     let povdbSource = await dbGetQuery("povdb", threadid, source)
     let hub1db3Source = await dbGetQuery("hub1db3", threadid, source)
-    let povdbTarget1 = await dbGetQuery("povdb", threadid, target1)
-    let hub1db3Target1 = await dbGetQuery("hub1db3", threadid, target1)
-    let povdbTarget2 = await dbGetQuery("povdb", threadid, target2)
-    let hub1db3Target2 = await dbGetQuery("hub1db3", threadid, target2)
+    let povdbTarget = await dbGetQuery("povdb", threadid, target)
+    let hub1db3Target = await dbGetQuery("hub1db3", threadid, target)
+    // let povdbTarget2 = await dbGetQuery("povdb", threadid, target2)
+    // let hub1db3Target2 = await dbGetQuery("hub1db3", threadid, target2)
     //console.log("MIGRATING ********************************");
     sql = `SELECT * from qwp_posts where createdat>${start_time}  order by createdat desc limit ${start},${size}`
     let rows = await hub1db3Source(
@@ -1611,7 +1611,7 @@ const migrateDisqusRecords = async ({
                 l(chalk.red.bold("NEW DISQUS THREAD"))
                 let insertSql = `INSERT into pov_threads_map2 (thread,channel,threadid,shortname,last_updated,posts_count,last_changed_count,thread_url) 
                 VALUES ("${xr["thread"]}","${xr["channel"]}","${xr["threadid"]}","${xr["shortname"]}",${xr["last_updated"]},${xr["posts_count"]},${xr["last_changed_count"]},"${xr["thread_url"]}")`
-                let res1 = await povdbTarget1(
+                let res1 = await povdbTarget(
                     `
                         INSERT into pov_threads_map2(thread, channel, threadid, shortname, last_updated, posts_count, last_changed_count, thread_url) VALUES( ? , ? , ? , ? , ? , ? , ? , ? )
                         `,
@@ -1637,60 +1637,14 @@ const migrateDisqusRecords = async ({
                 })
                 //  l(chalk.green("233", insertSql, res1))
             } else if (!rt1[0]["thread_url"]) {
-                await povdbTarget1(
+                await povdbTarget(
                     `UPDATE pov_threads_map2 set thread_url=? where thread=?`,
                     [xr["thread_url"], xr["thread"]]
                 )
             }
-            let rt2 = await povdbTarget2(
-                `SELECT m.* from  pov_threads_map2 m where m.thread=? limit 1`,
-                [thread]
-            )
-            await dbLog({
-                show: false,
-                type: "SQL",
-                body: `pre-migrate, target2: {sql:${sql}, res:${rt2 ? JSON.stringify(rt2, null, 4) : "null"
-                    }}`,
-                threadid,
-                sessionid,
-                username,
-            })
-            if (!rt2 || !rt2.length) {
-                console.log(2221)
-                let insertSql = `INSERT into pov_threads_map2 (thread,channel,threadid,shortname,last_updated,posts_count,last_changed_count,thread_url) 
-                VALUES ("${xr["thread"]}","${xr["channel"]}","${xr["threadid"]}","${xr["shortname"]}",${xr["last_updated"]},${xr["posts_count"]},${xr["last_changed_count"]},"${xr["thread_url"]}")`
-                let res2 = await povdbTarget2(
-                    `
-                        INSERT into pov_threads_map2(thread, channel, threadid, shortname, last_updated, posts_count, last_changed_count, thread_url) VALUES( ? , ? , ? , ? , ? , ? , ? , ? )
-                        `,
-                    [
-                        xr["thread"],
-                        xr["channel"],
-                        xr["threadid"],
-                        xr["shortname"],
-                        xr["last_updated"],
-                        xr["posts_count"],
-                        xr["last_changed_count"],
-                        xr["thread_url"],
-                    ]
-                )
-                await dbLog({
-                    show: false,
-                    type: "SQL",
-                    body: `pre-migrate, target2: {sql:${insertSql}, res:${res2 ? JSON.stringify(res2, null, 4) : "null"
-                        }}`,
-                    threadid,
-                    sessionid,
-                    username,
-                })
-            } else if (!rt2[0]["thread_url"]) {
-                await povdbTarget2(
-                    `UPDATE pov_threads_map2 set thread_url=? where thread=?`,
-                    [xr["thread_url"], xr["thread"]]
-                )
-            }
+
             sql = `SELECT id from  qwp_posts where id=${row["id"]}'  limit 1`
-            let pr1 = await hub1db3Target1(
+            let pr1 = await hub1db3Target(
                 `SELECT id from  qwp_posts m where id=? limit 1`,
                 [row["id"]]
             )
@@ -1719,7 +1673,7 @@ const migrateDisqusRecords = async ({
                     },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${row["watch_ticketid"]
                     },${row["watch_type"]},"${row["watch_identity"]},"${row["thread_title"]
                     }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
-                let res1 = await hub1db3Target1(
+                let res1 = await hub1db3Target(
                     `
                        INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,
                         ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,
@@ -1782,104 +1736,6 @@ const migrateDisqusRecords = async ({
                     show: false,
                     type: "SQL",
                     body: `pre-migrate, target2: {sql:${insertSql}, res:${res1 ? JSON.stringify(res1, null, 4) : "null"
-                        }}`,
-                    threadid,
-                    sessionid,
-                    username,
-                })
-            }
-            let pr2 = await hub1db3Target2(
-                `SELECT id from  qwp_posts m where id=? limit 1`,
-                [row["id"]]
-            )
-            await dbLog({
-                show: false,
-                type: "SQL",
-                body: `pre-migrate, source: {sql:${sql}, res:${pr2 ? JSON.stringify(pr2, null, 4) : "null"
-                    }}`,
-                threadid,
-                sessionid,
-                username,
-            })
-            if (!pr2 || !pr2.length) {
-                let insertSql = `INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_emai,json,status,state,original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,thread_url,role,updatedat) 
-                    VALUES( ${row["qforumid"]},"${row["forum"]}", ${row["id"]
-                    }, ${row["parent"]},"${row["message"]}",
-                    ${row["isflagged"]},"${row["thread"]}","${row["raw_message"]
-                    }",${row["createdat"]},${row["isedited"]},${row["ishighlighted"]
-                    },"${row["ipaddress"] || ""}",${row["isspam"]},${row["isdeleted"]
-                    },${row["likes"]},${row["isapproved"]},${row["dislikes"]},"${row["author_username"]
-                    }","${row["author_name"]}","${row["author_url"]}","${row["author_profileurl"]
-                    }","${row["author_emailHash"]}","${row["author_avatar_permalink"]
-                    }","${row["author_avatar_cache"]}","${row["author_id"]}",${row["author_isanonymous"]
-                    },"${row["author_email"]}","${row["json"]}",${row["status"]},"${row["state"]
-                    }","${row["original"]}",${row["movedto_postid"]},${row["children"]
-                    },${row["v"]},${row["ticket_id"]},${row["post_ticketid"]},${row["watch_ticketid"]
-                    },${row["watch_type"]},"${row["watch_identity"]},"${row["thread_title"]
-                    }","${row["thread_url"]}",${row["role"]},${row["updatedat"]})`
-                let res2 = await hub1db3Target2(
-                    `
-                       INSERT INTO qwp_posts (qforumid,forum,id,parent,message,isflagged,thread,raw_message,createdat,isedited,
-                        ishighlighted,ipaddress,isspam,isdeleted,likes,isapproved,dislikes,author_username,author_name,author_url,
-                        author_profileurl,author_emailHash,author_avatar_permalink,author_avatar_cache,author_id,author_isanonymous,author_email,json,status,state,
-                        original,movedto_postid,children,v,ticketid,post_ticketid,watch_ticketid,watch_type,watch_identity,thread_title,
-                        thread_url,role,updatedat) 
-                    VALUES(?,?,?,?,?,?,?,?,?,?,
-                        ?,?,?,?,?,?,?,?,?,?,
-                        ?,?,?,?,?,?,?,?,?,?,
-                        ?,?,?,?,?,?,?,?,?,?,
-                        ?,?,? )
-                        `,
-                    [
-                        row["qforumid"],
-                        row["forum"],
-                        row["id"],
-                        row["parent"],
-                        row["message"],
-                        row["isflagged"],
-                        row["thread"],
-                        row["raw_message"],
-                        row["createdat"],
-                        row["isedited"],
-                        row["ishighlighted"],
-                        row["ipaddress"] || "",
-                        row["isspam"],
-                        row["isdeleted"],
-                        row["likes"],
-                        row["isapproved"],
-                        row["dislikes"],
-                        row["author_username"],
-                        row["author_name"],
-                        row["author_url"],
-                        row["author_profileurl"],
-                        row["author_emailHash"],
-                        row["author_avatar_permalink"],
-                        row["author_avatar_cache"],
-                        row["author_id"],
-                        row["author_isanonymous"],
-                        row["author_email"],
-                        row["json"],
-                        row["status"],
-                        row["state"],
-                        row["original"],
-                        row["movedto_postid"],
-                        row["children"],
-                        row["v"],
-                        row["ticket_id"],
-                        row["post_ticketid"],
-                        row["watch_ticketid"],
-                        row["watch_type"],
-                        row["watch_identity"],
-                        row["thread_title"],
-                        row["thread_url"],
-                        row["role"],
-                        row["updatedat"],
-                    ]
-                )
-                await dbLog({
-                    show: false,
-                    type: "SQL",
-                    body: `pre-migrate, target2: {sql:${insertSql}, res:${res2 ? JSON.stringify(res2, null, 4) : "null"
                         }}`,
                     threadid,
                     sessionid,

@@ -18,6 +18,7 @@ function func({
             reject(item);
             return;
         }
+        item.site_name="The American Spectator";
         if (item.description.indexOf("Total 0:") === 0) {
             item.description = item.description.split(`Email`)[1];
         }
@@ -35,7 +36,8 @@ function func({
         //log(`date:`,published_time);
         let b = $(`.post-body`);
         b.find(`.first-char`).addClass(`drop`);
-        b.find(`heateor_sss_sharing_container`).remove();
+        b.find(`.heateor_sss_sharing_container`).remove();
+       // b.find(`heateor_sss_sharing_container `)
         item.body = b.html();
         //log("body=",item.body);
         // log("pubtime=", item.published_time);
