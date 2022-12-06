@@ -116,12 +116,12 @@ const runFeed = async ({ tag, tags, silo, sessionid, threadid, username }) => {
                     let rssFeed = rssFeeds[i]
                     let { rss, active, slug: rssSlug } = rssFeed
 
-                    //  l("rssFeed:", "notor=", notor, js({ notor, rss, active, }), JSON.stringify({ rssFeed }));
+                      l("rssFeed:", "notor=", notor, js({ notor, rss, active, }), JSON.stringify({ rssFeed }));
                     if (active) {
                         let parser = new Parser({
                             timeout: 124000,
                             //defaultRSS: 2.0,
-                            requestOptions: notor ? {} : { agent },
+                            requestOptions: notor==1 ? {} : { agent },
                             headers: {
                                 "User-Agent":
                                     "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",

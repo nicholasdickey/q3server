@@ -54,7 +54,7 @@
 #OUTPUTFILE=1 NOTOR=0  node ./runFeed.js thetimes  https://www.thetimes.co.uk/article/kwasi-kwarteng-thinks-liz-truss-will-be-gone-within-weeks-mbb6qbhlv thetimes
 
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js freebeacon https://freebeacon.com/campus/how-georgetown-law-school-used-ilya-shapiros-apology-against-him/ freebeacon 
-OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nyt https://www.nytimes.com/2022/12/01/us/politics/obama-warnock-georgia-runoff.html? nyt
+#OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nyt https://www.nytimes.com/2022/12/01/us/politics/obama-warnock-georgia-runoff.html? nyt
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js cnn https://www.cnn.com/2022/06/20/politics/texas-gop-convention-resolution/index.html cnn
 
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js abcnews https://abcnews.go.com/Business/higher-interest-rates-good/story?id=85460791 abcnews
@@ -65,3 +65,4 @@ OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nyt https://www.nytimes.com/2022/12/01/u
 
 #CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js townhall https://townhall.com/columnists/isabellemorales/2022/11/29/house-gop-should-ban-earmarks-n2616470/ townhall
 #CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js dailywire https://www.dailywire.com/news/female-co-hosts-tag-team-don-lemon-for-daring-to-defend-mens-soccer-team/ dailywire
+CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js dailysignal https://www.dailysignal.com/2022/12/03/elon-musk-exposes-inside-story-twitters-crackdown-hunter-biden-laptop-2020-election/ dailysignal

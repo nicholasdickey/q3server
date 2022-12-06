@@ -272,6 +272,7 @@ pov_channel_crawlers f where c.shortname =? and f.category_xid=c.xid `,
         });
         if (feed) {
             let category_xid = feed.category_xid;
+            l('category_xid',category_xid)
             if (feed) {
                 if (feed.rss) {
                     sql = `SELECT rss,1 as active from pov_channel_crawler_rss where category_xid='${category_xid}'`;
