@@ -6,6 +6,9 @@ import { dbLog } from "./db.js";
 const redisServer = process.env.REDIS_HOST_PRIMARY;
 const redisPort = process.env.REDIS_PORT_PRIMARY;
 const redisNodes = process.env.REDIS_NODES;
+let cluster=process.env.REDIS_CLUSTER;
+if(!cluster)
+cluster=0;
 const startupNodes=[
     {
         host:'192.168.1.16',
@@ -47,9 +50,9 @@ try{
     port = port || redisPort;
 
     let client;
-
-    if (!x) {
-      //  l("connectCluster",rootNodes)
+    l("getRedisClient cluster=",cluster)
+    if (!x&&cluster==1) {
+        l("connectCluster",rootNodes)
         client = new Redis.Cluster(startupNodes, {
             retryDelayOnFailover: 100,
             enableAutoPipelining: true,
