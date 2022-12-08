@@ -1,0 +1,27 @@
+version: "3.5"
+services:
+    lake-spider-dev:
+        image: "hudsonwilde/lake-spider-dev"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        ports:
+            - 3600:3202
+            - 9269:9229
+        build:
+            context: .
+            dockerfile: dev.Dockerfile
+        container_name: lake-server-dev
+        volumes:
+            - "..:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            
+        env_file:
+            - dev.env
+        restart: unless-stopped
+    
+    
+   
