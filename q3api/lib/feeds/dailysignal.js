@@ -1,6 +1,5 @@
-import { l, chalk, microtime, allowLog } from "../common.js";
-import runFeedActions from "../actions/runFeedActions.js";
-const { postUrl } = runFeedActions;
+import { l, chalk, microtime, allowLog,js } from "../common.js";
+
 function func({
     $,
     item,
@@ -20,7 +19,7 @@ function func({
         //  item.author=$('meta [data-name="marketo-author"]').attr('content')
         //if(isEmpty(item.author))
         if (!item.image) item.image = $(".lead-image img").attr("src");
-        item.author = $(".header-wrapper .byline a").text();
+        item.author = $(".header-wrapper .byline a").first().text();
         if (item.author)
             item.author = item.author.split("Leave a comment")[0].trim();
         String.prototype.replaceAll = function (search, replacement) {
@@ -33,6 +32,7 @@ function func({
         item.description = $(".tds-content p").first().text();
         item.site_name = `Daily Signal`;
         log("site_name:", item.site_name);
+        l("item",js(item))
         resolve(item);
         //==================================================================================
     } catch (x) {
