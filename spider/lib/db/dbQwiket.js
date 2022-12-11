@@ -2687,6 +2687,86 @@ const checkUrl = async ({
     }
 }
 
+const cacheTimestamps = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { type, key } = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "cacheTimestamps");
+    sql = `SELECT * from pov_cache_timestamps where \`type\`='${type}' and \`key\`=${key}`;
+    console.log(sql)
+    let rows = await query(`SELECT * from pov_cache_timestamps where \`type\`=? and \`key\`=?`, [type, key]);
+    return rows[0];
+}
+
+const fetchQwiketsIndexedSince = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { time, field, test } = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+    sql = `SELECT * from pov_category_qwikets where \`${field}\`>='${time}' and test='${test}' `;
+    let rows = await query(`SELECT * from pov_category_qwikets where \`${field}\`>=? and test=? `, [time, test]);
+    console.log(sql)
+    return rows;
+}
+
+const primaryThreadXid = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { threadid: qThreadid,} = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "primaryThreadXid");
+    let table=splitQwiketid(qThreadid);
+    sql= `SELECT xid as thread_xid FROM \`${table}\` where threadid='${qThreadid}' order by reshare desc limit 1`;
+    let rows = await query(`SELECT xid as thread_xid FROM \`${table}\` where threadid=? order by reshare desc limit 1`, [qThreadid]);
+    console.log(sql);   
+    return rows['thread_xid'];
+}
+const splitQwiketid = (qwiketid) => {
+
+    let table = 'pov_threads_view';
+    const e = qwiketid.split('-slug-');//explode('-slug-',$qwiketid);
+    if (e.length > 1) {
+        $table += e[0];
+    } else {
+        e = qwiketid.split('$-');
+
+        if (e.length > 1) {
+            $table += e[0];
+        }
+    }
+    return table;
+}
+const getQwiket = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { xid} = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "primaryThreadXid");
+    let table=splitQwiketid(qThreadid);
+    sql= `SELECT * FROM \`${table}\` where xid='${xid} limit 1' `;
+    let rows = await query(`SELECT * FROM \`${table}\` where xid=? limit 1`, [xid]);
+    console.log(sql);   
+    return rows[0];
+}
+
 export default {
     migrateQwiketRecords,
     longMigrateQwiketRecords,
@@ -2710,4 +2790,8 @@ export default {
     outputQueue,
     fetchOutputQueue,
     remove,
+    cacheTimestamps,
+    fetchQwiketsIndexedSince,
+    primaryThreadXid,
+    getQwiket
 }

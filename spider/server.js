@@ -18,6 +18,7 @@
 
 
 import feedActions from "./lib/actions/feedActions.js"
+import qwiketActions from "./lib/actions/qwiketActions.js"
 import { dbEnd } from "./lib/db.js"
 const {
     runFeedsAction,
@@ -28,6 +29,9 @@ const {
     runIndexQwikets,
     runLongMigrateTable
 } = feedActions
+const {
+    validateQwiketCache
+} = qwiketActions;
 import { l, chalk, allowLog, sleep, js } from "./lib/common.js"
 //import { loadCDN } from "./cdn.mjs"
 //import { init as apiServerInit, end as apiServerEnd } from "./api-server.mjs"
@@ -327,4 +331,16 @@ if (process.env.PRE_MIGRATE2022 == 1) {
    dbEnd(`server.js12-${threadid1}`)
    exit(); 
 }
+if (process.env.CACHE_QWIKET == 1) {
+    allowLog()
+    await validateQwiketCache({
+        //db only, two days
+        sessionid: "server.js",
+        threadid: `server.js11-${threadid1}`,
+        username: "server.js",
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    exit();
+}
+validateQwiketCache
 

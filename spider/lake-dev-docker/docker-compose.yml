@@ -1,5 +1,15 @@
 version: "3.5"
 services:
+    tor:
+        image: "arulrajnet/torprivoxy:latest"
+        container_name: tor-dev
+        
+        ports:
+            - 8118:8118 
+            - 9050:9050 
+            - 9051:9051
+        restart: always  
+       
     lake-spider-dev:
         image: "hudsonwilde/lake-spider-dev"
         stdin_open: true # docker run -i

@@ -1,1 +1,0 @@
-COMPOSE_HTTP_TIMEOUT=180 DB_USER=root DB_PASSWORD=nudela2008  docker-compose  up -d
