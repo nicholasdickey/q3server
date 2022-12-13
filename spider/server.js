@@ -30,7 +30,8 @@ const {
     runLongMigrateTable
 } = feedActions
 const {
-    validateQwiketCache
+    validateQwiketCache,
+    validatePostsCache
 } = qwiketActions;
 import { l, chalk, allowLog, sleep, js } from "./lib/common.js"
 //import { loadCDN } from "./cdn.mjs"
@@ -334,7 +335,6 @@ if (process.env.PRE_MIGRATE2022 == 1) {
 if (process.env.CACHE_QWIKET == 1) {
     allowLog()
     await validateQwiketCache({
-        //db only, two days
         sessionid: "server.js",
         threadid: `server.js11-${threadid1}`,
         username: "server.js",
@@ -342,5 +342,16 @@ if (process.env.CACHE_QWIKET == 1) {
     dbEnd(`server.js11-${threadid1}`)
     exit();
 }
-validateQwiketCache
 
+if (process.env.CACHE_POST) {
+    allowLog()
+    const forum=process.env.CACHE_POST;
+    await validatePostsCache({
+        forum,
+        sessionid: "server.js",
+        threadid: `server.js11-${threadid1}`,
+        username: "server.js",
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    exit();
+}
