@@ -2,14 +2,14 @@ import dbQwiket from "../db/dbQwiket.js";
 
 import { dbLog, dbEnd } from "../db.js";
 
-import { redis } from "../redis.js";
+import { redis, getRedisClient } from "../redis.js";
 //import { getRedisClient } from "../lib/redis.js"
 import { l, chalk, js } from "../common.js";
 const dbServerNameX1 = process.env.DB_HOST_PRIMARY;
 const dbServerNameX2 = process.env.DB_HOST_SECONDARY;
 
 const redisServerX1 = process.env.REDIS_HOST_PRIMARY;
-const redisServerX2 = process.env.REDIS_HOST_SECONDARY; 
+const redisServerX2 = process.env.REDIS_HOST_SECONDARY;
 const redisPortX1 = process.env.REDIS_PORT_PRIMARY;
 const redisPortX2 = process.env.REDIS_PORT_SECONDARY;
 
@@ -22,7 +22,7 @@ const dbTargetServerNameX2 = process.env.DB_HOST_SILO5_SECONDARY;
 
 const PAGE_SIZE = 10;
 const TOTAL_SIZE = 1000;
-const longMigrateTable= async ({
+const longMigrateTable = async ({
     table,
     start_xid,
     index,
@@ -33,9 +33,9 @@ const longMigrateTable= async ({
     const size = 500;
     //let cont = 1;
     let page = 0;
-   
+
     try {
-         start_xid = await dbQwiket.longMigrateTable({
+        start_xid = await dbQwiket.longMigrateTable({
             sessionid,
             threadid,
             username,
@@ -52,7 +52,7 @@ const longMigrateTable= async ({
     } catch (x) {
         l(chalk.red(`9987`, x));
     }
-    l("returning",start_xid)
+    l("returning", start_xid)
     return start_xid;
 };
 const longMigrateQwikets = async ({
@@ -66,9 +66,9 @@ const longMigrateQwikets = async ({
     const size = 500;
     //let cont = 1;
     let page = 0;
-   
+
     try {
-         start_xid = await dbQwiket.longMigrateQwiketRecords({
+        start_xid = await dbQwiket.longMigrateQwiketRecords({
             sessionid,
             threadid,
             username,
@@ -85,7 +85,7 @@ const longMigrateQwikets = async ({
     } catch (x) {
         l(chalk.red(`9987`, x));
     }
-    
+
     return start_xid;
 };
 
@@ -133,38 +133,38 @@ const preMigrateQwikets = async ({
         "====== after migrateQwiketRecords",
         process.env.DB_HOST_SILO5_PRIMARY
     );
-  /*  page = 0;
-    while (cont) {
-        try {
-            rows = await dbQwiket.migrateQwiketRecords({
-                sessionid,
-                threadid,
-                username,
-                input: {
-                    slugPrefix,
-                    published_time: start_time,
-                    page,
-                    size,
-                    source: process.env.DB_HOST_SILO5_SECONDARY,
-                    target1: process.env.DB_HOST_PRIMARY,
-                    target2: process.env.DB_HOST_SECONDARY,
-                },
-            });
-        } catch (x) {
-            l(chalk.red(`876111`, x));
-        }
-        console.log(
-            "====== after migrateQwiketRecords",
-            process.env.DB_HOST_SILO5_SECONDARY
-        );
-        if (rows < size) {
-            cont = false;
-            l(chalk.red.bold("PRE-MIGRATE X2 STOP", page));
-        } else {
-            page++;
-            l(chalk.green.bold("PRE-MIGRATE X2 CONTINUE", page));
-        }
-    }*/
+    /*  page = 0;
+      while (cont) {
+          try {
+              rows = await dbQwiket.migrateQwiketRecords({
+                  sessionid,
+                  threadid,
+                  username,
+                  input: {
+                      slugPrefix,
+                      published_time: start_time,
+                      page,
+                      size,
+                      source: process.env.DB_HOST_SILO5_SECONDARY,
+                      target1: process.env.DB_HOST_PRIMARY,
+                      target2: process.env.DB_HOST_SECONDARY,
+                  },
+              });
+          } catch (x) {
+              l(chalk.red(`876111`, x));
+          }
+          console.log(
+              "====== after migrateQwiketRecords",
+              process.env.DB_HOST_SILO5_SECONDARY
+          );
+          if (rows < size) {
+              cont = false;
+              l(chalk.red.bold("PRE-MIGRATE X2 STOP", page));
+          } else {
+              page++;
+              l(chalk.green.bold("PRE-MIGRATE X2 CONTINUE", page));
+          }
+      }*/
 };
 const indexQwikets = async ({
     slugPrefix,
@@ -179,75 +179,75 @@ const indexQwikets = async ({
     let page = 0;
     let rows = 0;
 
-     l('indexQwikets')
-/*
-    if (process.env.PRE_MIGRATE == 1||process.env.PRE_MIGRATE2022) {
-        while (cont) {
-            try {
-                rows = await dbQwiket.migrateQwiketRecords({
-                    sessionid,
-                    threadid,
-                    username,
-                    input: {
-                        slugPrefix,
-                        published_time: start_time,
-                        page,
-                        size,
-                        source: process.env.DB_HOST_SILO5_PRIMARY,
-                        target1: process.env.DB_HOST_PRIMARY,
-                        target2: process.env.DB_HOST_SECONDARY,
-                    },
-                });
-            } catch (x) {
-                l(chalk.red(`9987`, x));
+    l('indexQwikets')
+    /*
+        if (process.env.PRE_MIGRATE == 1||process.env.PRE_MIGRATE2022) {
+            while (cont) {
+                try {
+                    rows = await dbQwiket.migrateQwiketRecords({
+                        sessionid,
+                        threadid,
+                        username,
+                        input: {
+                            slugPrefix,
+                            published_time: start_time,
+                            page,
+                            size,
+                            source: process.env.DB_HOST_SILO5_PRIMARY,
+                            target1: process.env.DB_HOST_PRIMARY,
+                            target2: process.env.DB_HOST_SECONDARY,
+                        },
+                    });
+                } catch (x) {
+                    l(chalk.red(`9987`, x));
+                }
+                console.log(
+                    "====== after migrateQwiketRecords",
+                    process.env.DB_HOST_SILO5_PRIMARY
+                );
+                if (rows < size) {
+                    cont = false;
+                    l(chalk.blue.bold("indexQwikets X1 STOP", page));
+                } else {
+                    page++;
+                    l(chalk.green.bold("indexQwikets X1 CONTINUE", page));
+                }
             }
-            console.log(
-                "====== after migrateQwiketRecords",
-                process.env.DB_HOST_SILO5_PRIMARY
-            );
-            if (rows < size) {
-                cont = false;
-                l(chalk.blue.bold("indexQwikets X1 STOP", page));
-            } else {
-                page++;
-                l(chalk.green.bold("indexQwikets X1 CONTINUE", page));
+            while (cont) {
+                try {
+                    rows = await dbQwiket.migrateQwiketRecords({
+                        sessionid,
+                        threadid,
+                        username,
+                        input: {
+                            slugPrefix,
+                            published_time: start_time,
+                            page,
+                            size,
+                            source: process.env.DB_HOST_SILO5_SECONDARY,
+                            target1: process.env.DB_HOST_PRIMARY,
+                            target2: process.env.DB_HOST_SECONDARY,
+                        },
+                    });
+                } catch (x) {
+                    l(chalk.red(`876111`, x));
+                }
+                console.log(
+                    "====== after migrateQwiketRecords",
+                    process.env.DB_HOST_SILO5_SECONDARY
+                );
+                if (rows < size) {
+                    cont = false;
+                    l(chalk.blue.bold("indexQwikets X2 STOP", page));
+                } else {
+                    page++;
+                    l(chalk.green.bold("indexQwikets X2 CONTINUE", page));
+                }
             }
         }
-        while (cont) {
-            try {
-                rows = await dbQwiket.migrateQwiketRecords({
-                    sessionid,
-                    threadid,
-                    username,
-                    input: {
-                        slugPrefix,
-                        published_time: start_time,
-                        page,
-                        size,
-                        source: process.env.DB_HOST_SILO5_SECONDARY,
-                        target1: process.env.DB_HOST_PRIMARY,
-                        target2: process.env.DB_HOST_SECONDARY,
-                    },
-                });
-            } catch (x) {
-                l(chalk.red(`876111`, x));
-            }
-            console.log(
-                "====== after migrateQwiketRecords",
-                process.env.DB_HOST_SILO5_SECONDARY
-            );
-            if (rows < size) {
-                cont = false;
-                l(chalk.blue.bold("indexQwikets X2 STOP", page));
-            } else {
-                page++;
-                l(chalk.green.bold("indexQwikets X2 CONTINUE", page));
-            }
-        }
-    }
-    */
+        */
     while (cont) {
-         console.log(
+        console.log(
             `&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& page=${page}`
         );
         const qwiketInput = {
@@ -309,7 +309,7 @@ const indexQwikets = async ({
                     qwiketTags.forEach(item => tags.add(item["shortname"]));
                 }
                 // console.log("after fetchTags");
-                 l(chalk.yellow('TAGS OBJECT', JSON.stringify(tags)))
+                l(chalk.yellow('TAGS OBJECT', JSON.stringify(tags)))
                 let tagsString = tags ? [...tags].join(",") : `""`;
 
                 if (typeof q["body"] === "object")
@@ -355,21 +355,21 @@ const indexQwikets = async ({
                     port: redisPortX1,
                     logContext: { sessionid, threadid, username },
                 };
-                 l(
-                     chalk.magenta(
-                         JSON.stringify({
-                                 channelSlug: q["channelSlug"],
-                                 channel: q["channel"],
-                                 url: q["url"],
-                             },
-                             null,
-                             4
-                         )
-                     )
-            );
-            l("********************")
+                l(
+                    chalk.magenta(
+                        JSON.stringify({
+                            channelSlug: q["channelSlug"],
+                            channel: q["channel"],
+                            url: q["url"],
+                        },
+                            null,
+                            4
+                        )
+                    )
+                );
+                l("********************")
                 await redis.ft_add(record);
-               l("after ft_add", page, i);
+                l("after ft_add", page, i);
             }
             /*if (inputQwikets.length < size) {
                 l(
@@ -965,6 +965,385 @@ const qwiketTagsQuery = async ({
     });
     return results;
 };
+const cacheQwiket = async ({
+    sessionid,
+    threadid,
+    username,
+    input
+}) => {
+    const { qwiket, days, primary, cache } = input;
+    const qThreadid = qwiket['threadid'];
+    if (!qThreadid)
+        return false;
+
+    const url = qwiket['url'];
+    if (!url)
+        return false;
+
+
+    let reshare = qwiket['reshare'];
+    const short = reshare == 6 || reshare == 7 || reshare == 56 || reshare == 57 || reshare == 106 || reshare == 107;
+    const draft = reshare >= 50 && reshare <= 60;
+    let body = qwiket['body'] ? $qwiket['body'] : null;
+    let json;
+    if (!short && !body) {
+        json = await dbQwiket.getQ({
+            input: { key: qThreadid + (draft ? ".draft" : ".prod") },
+            sessionid,
+            threadid,
+            username
+        });
+        if (!json)
+            json = await dbQwiket.getQ({
+                input: { key: qThreadid + ".qwiket" },
+                sessionid,
+                threadid,
+                username
+            });
+        if (json) {
+            const q = JSON.parse(json);
+            qwiket['body'] = q['body'];
+        }
+    }
+
+    let thread_xid = qwiket['xid'];
+
+    if (!primary && (reshare < 100)) {
+        //find potential primary qwiket (same threadid) and share its xid instead with own category
+        thread_xid = dbQwiket.primaryThreadXid({
+            input: { threadid: qThreadid },
+            sessionid,
+            threadid,
+            username
+        });
+
+    }
+
+
+    let publishedTime = qwiket['published_time'];
+    let sharedTime = qwiket['shared_time'];
+
+    if (!sharedTime) {
+        sharedTime = time() - 3600;
+        qwiket['shared_time'] = sharedTime;
+    }
+    if (!qwiket['date'] && sharedTime)
+        qwiket['date'] = sharedTime;
+
+    qwiket['cat'] = shortname;
+
+    if (!qwiket['identity'])
+        qwiket['identity'] = '00e98e251067b27107189bd7c8316ba2';
+
+
+
+    const user = await dbQwiket.getUser({
+        input: { identity: qwiket['identity'] },
+        sessionid,
+        threadid,
+        username
+    });
+    if (user) {
+        qwiket['s_un'] = user['user_name'];
+        qwiket['s_pu'] = user['profileurl']
+    }
+    else {
+        if (qwiket['shared_by_user_name']) {
+            qwiket['s_un'] = qwiket['shared_by_user_name'];
+        }
+        if (qwiket['shared_by_profileurl']) {
+            qwiket['s_pu'] = qwiket['shared_by_profileurl'];
+        }
+    }
+
+    //note, skipped setting qwiket['channel'], makes no sense
+    delete qwiket.log;
+    delete qwiket.rss;
+    delete qwiket.shared_by_avatar;
+    delete qwiket.shared_by_identity;
+    delete qwiket.shared_by_profileurl;
+    delete qwiket.thread;
+    delete qwiket.feed;
+    delete qwiket.feed_xid;
+    delete qwiket.local_category_xid;
+    delete qwiket.qpostid;
+    delete qwiket.createdat;
+
+    const jsonKey = 'ntjson-' + thread_xid;
+    const jsonQwiket = JSON.stringify(qwiket);
+
+    l(chalk.green.bold("processing qwiket shortname:", shortname, ";threadid:", qwiket.threadid))
+    await cache.setex(`tview-username-${thread_xid}`, days * 24 * 3600, user['username']);
+    await cache.setex(jsonKey, days * 24 * 3600, jsonQwiket);
+    await cache.setex(`txid-${qwiket['threadid']}`, days * 24 * 3600, thread_xid);
+    return true;
+}
+const validateQwiketCache = async ({
+    sessionid,
+    threadid,
+    username,
+}) => {
+    const keys = ['test', '']
+    const cache = await getRedisClient({});
+
+    for (let i = 0; i < keys.length; i++) {
+        let k = keys[i];
+
+        let dbCacheRecord = await dbQwiket.cacheTimestamps({
+            input: { type: 'qwiket', key: k },
+            sessionid,
+            threadid,
+            username
+        });
+        l("dbCacheRecord", dbCacheRecord);
+        if (!dbCacheRecord)
+            continue;
+        const testSuffix = k == 'test' ? '-test' : '';
+        let memoryTime = await cache.get(`cache-timestamps-qwiket${testSuffix}`);
+        if (!memoryTime)
+            memoryTime = 0;
+        l(
+            "memoryTime:", memoryTime,
+            "dbCacheRecord.time:", dbCacheRecord.time
+        )
+
+
+        let updateType = dbCacheRecord.update_type;
+        if (dbCacheRecord.time > memoryTime) {
+            if (dbCacheRecord.time - memoryTime > 3600)
+                updateType = 'c';
+            let qwikets = [];
+            let nextTime = 0;
+            let incrementalCatsPublished = [];
+            let incrementalCatsShared = [];
+            let cats = [];
+            if (updateType == 'i') {
+                qwikets = await dbQwiket.fetchQwiketsIndexedSince({
+                    input: { time: memoryTime, field: 'time', test: k },
+                    sessionid,
+                    threadid,
+                    username
+                })
+
+
+            }
+            else {
+                qwikets = await dbQwiket.fetchQwiketsIndexedSince({ // all stored in pov_category_qwikets, at the end of the task trim for a week
+                    input: { time: 0, field: 'time', test: k },
+                    sessionid,
+                    threadid,
+                    username
+                })
+            }
+            nextTime = Date.now() / 1000 | 0;
+            for (let i = 0; i < qwikets.length; i++) {
+                const qi = qwikets[i];
+                l(chalk.magenta.bold("qwiket:", js(qi)))
+                let xid = qi['xid'];
+                const shortname = qi['shortname'];
+                let qwiket = await dbQwiket.getQwiket({
+                    input: { xid, qThreadid: qi['threadid'] },
+                    sessionid,
+                    threadid,
+                    username
+                })
+
+                const result = await cacheQwiket({
+                    sessionid, threadid, username,
+                    input: {
+                        qwiket,
+                        days: 7,
+                        cache
+                    }
+                })
+                if (!result)
+                    continue;
+                if (reshare == 7 || reshare == 107 | reshare == 6 || reshare == 106 || reshare == 56 || reshare == 57) { //qwiket - comments, not implemented at the moment
+                    continue;
+                }
+                const trim = 250;
+                const tidsCatKey = `${testPrefix}tids-cat-published-${shortname}`;
+                await cache.zadd(tidsCatKey, publishedTime, thread_xid);
+                await cache.zremrangebyrank(tidsCatKey, 0, -1 * trim);
+                let it = 0;
+                while (true) {
+                    const ret = await cache.zscan(`${testPrefix}2l-tids`, it, 'match', `*${shortname}*`);
+                    l(chalk.yellow.bold("zscan return", js(ret)));
+                    it = ret[0];
+
+                    const res = ret[1];
+                    const removeTids = async (testPrefix, newsline) => {
+                        await cache.del(`${testPrefix}${newsline}`);
+                        await cache.zrem(`${testPrefix}2l-tids`, $newsline); // clean up after P
+                        await cache.del(`${testPrefix}tids-${$newsline}-published`);
+                        await cache.del(`${testPrefix}tids-${$newsline}-shared`);
+                    }
+                    res.forEach(async newsline => {
+                        l(chalk.green("newsline:", newsline))
+                        if (newsline.indexOf(':') < 0) {
+                            //invalid key
+                            await removeTids(testPrefix, newsline);
+                            return;
+                        }
+                        if (await cache.exists(`${testPrefix}${newsline}`)) { //expiring monitor
+                            await cache.zadd(`${testPrefix}tids-${newsline}-published`, publishedTime, thread_xid);
+                            await cache.zremrangebyrank(`${testPrefix}tids-${newsline}-published`, 0, -1 * trim);
+                            await cache.zadd(`${testPrefix}tids-${newsline}-shared`, sharedTime, thread_xid);
+                            await cache.zremrangebyrank(`${testPrefix}tids-${newsline}-shared`, 0, -1 * trim);
+                        }
+                        else {
+                            await removeTids(testPrefix, newsline);
+                        }
+                    })
+                    if (!it || +it == 0)
+                        break;
+                }
+            }
+            await cache.set(`cache-timestamps-qwiket${testSuffix}`, nextTime);
+            qwikets = await dbQwiket.trimCategoryQwikets({ // all stored in pov_category_qwikets, at the end of the task trim for a week
+                input: { type: 'qwiket', key: k },
+                sessionid,
+                threadid,
+                username
+            })
+        }
+    }
+}
+const validatePostsCache = async ({
+    forum,
+    sessionid,
+    threadid,
+    username,
+}) => {
+
+    const cache = await getRedisClient({});
+    /**
+     * 1. Get all posts from channelPosts for forum after the timestamp
+     * 2. Loop, get thread post, combine info into a single post object, add to tid-qpostid, set pjson and add to lpxids-forum-qpostid
+     */
+    let dbCacheRecord = await dbQwiket.cacheTimestamps({
+        input: { type: 'post', key: forum },
+        sessionid,
+        threadid,
+        username
+    });
+    l("dbCacheRecord", dbCacheRecord);
+    if (!dbCacheRecord)
+        return;
+
+    let memoryTime = await cache.get(`cache-timestamps-posts-${forum}`);
+    if (!memoryTime)
+        memoryTime = 0;
+    l(
+        "memoryTime:", memoryTime,
+        "dbCacheRecord.time:", dbCacheRecord.time
+    )
+
+
+    let updateType = dbCacheRecord.update_type;
+    if (dbCacheRecord.time > memoryTime) {
+        if (dbCacheRecord.time - memoryTime > 3600)
+            updateType = 'c';
+
+
+        let nextTime = Date.now() / 1000 | 0;
+        let posts = await dbQwiket.fetchChannelPostsSince({ //channel posts has 24 hours of posts
+            input: { time: updateType == 'i' ? memoryTime : 0, forum },
+            sessionid,
+            threadid,
+            username
+        })
+        if (!posts)
+            return;
+        for (let i = 0; i < posts.length; i++) {
+            const post = posts[i];
+            l("got post:",js(post))
+            post['xid'] = post['qpostid']
+            const thread = post['thread'];
+            const threadQwiket = await dbQwiket.getThreadQwiket({
+                input: { thread },
+                sessionid,
+                threadid,
+                username
+            })
+            const result = await cacheQwiket({
+                sessionid, threadid, username,
+                input: {
+                    qwiket: threadQwiket,
+                    days: 7, 
+                    cache,
+                    primary: 1 // no need to look for primary, already taken care of in getThreadQwiket
+                }
+            })
+            if (!result)
+                continue;
+            post['category_xid'] = threadQwiket['category_xid'];
+            post['thread_image'] = threadQwiket['image'];
+            post['thread_author'] = threadQwiket['author'];
+            post['thread_xid'] = threadQwiket['xid'];
+            if ([pst['url']] == "http://qwiket.com/context/usconservative/topic/nro-is-moving-to-facebook-comments") {
+                post['url'] = "http://qwiket.com/context/topic/nro-is-moving-to-facebook-comments";
+            }
+            const pjson = JSON.stringify(post)
+            const tidKey = `tid-${post['xid']}`;
+            await cache.setex(tidKey, 7*24 * 3600, qwiket[xid])
+            const channelPjsonKey = `pjson-${forumn}-${post['xid']}`;
+            await cache.setex(channelPjsonKey, 7*24 * 3600);
+            const v6Key = `pjson-${p[id]}`;
+            await cache.setex(v6Key, 7 * 24 * 3600, pjson);
+            const lpxidKey = `lpxids-${forum}`;
+            await cache.zadd(lpxidKey, post['createdat'], p['xid']);
+            await cache.zremrangebyrank(lpxidKey, 0, -1 * 1000);
+            const disqKey = `disq-tids-${forum}`;
+            await cache.zadd(disqKey, post['createdat'], qwiket['xid']);
+            await cache.zremrangebyrank(disqKey, 0, -1 * 1000);
+            l("end post processing")
+        }
+        await cache.set(`cache-timestamps-posts-${forum}`, nextTime);
+    }
+    
+}
+const validateCatsCache = async ({
+    sessionid,
+    threadid,
+    username,
+}) => {
+
+    const cache = await getRedisClient({});
+    /**
+     * 1. Get all posts from channelPosts for forum after the timestamp
+     * 2. Loop, get thread post, combine info into a single post object, add to tid-qpostid, set pjson and add to lpxids-forum-qpostid
+     */
+    let dbCacheRecord = await dbQwiket.cacheTimestamps({
+        input: { type: 'cat', key: '' },
+        sessionid,
+        threadid,
+        username
+    });
+    l("dbCacheRecord", dbCacheRecord);
+    if (!dbCacheRecord)
+        return;
+
+    let memoryTime = await cache.get(`cache-timestamps-posts-${forum}`);
+    if (!memoryTime)
+        memoryTime = 0;
+    l(
+        "memoryTime:", memoryTime,
+        "dbCacheRecord.time:", dbCacheRecord.time
+    )
+
+
+    let updateType = dbCacheRecord.update_type;
+    if (dbCacheRecord.time > memoryTime) {
+        if (dbCacheRecord.time - memoryTime > 3600)
+            updateType = 'c';
+
+
+        let nextTime = Date.now() / 1000 | 0;
+    }
+}
+
+    
 export default {
     indexDisqusComments,
     indexQwikets,
@@ -973,5 +1352,7 @@ export default {
     getTag,
     preMigrateQwikets,
     longMigrateQwikets,
-    longMigrateTable
+    longMigrateTable,
+    validateQwiketCache,
+    validatePostsCache
 };

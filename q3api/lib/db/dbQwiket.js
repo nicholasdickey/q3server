@@ -2687,6 +2687,212 @@ const checkUrl = async ({
     }
 }
 
+const cacheTimestamps = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { type, key } = input
+    let sql, result;
+    try {
+        let query = await dbGetQuery("povdb", threadid, dbServerName, "cacheTimestamps");
+        sql = `SELECT * from pov_cache_timestamps where \`type\`='${type}' and \`key\`='${key}'`;
+        console.log(sql, type, key)
+        result = await query(`SELECT * from pov_cache_timestamps where \`type\`=? and \`key\`=?`, [type, key]);
+        l("result", result)
+        return result ? result[0] : null;
+    }
+    catch (x) {
+        l(chalk.red.bold(x))
+    }
+}
+
+const fetchQwiketsIndexedSince = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { time, field, test } = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+    if (time) {
+        sql = `SELECT * from pov_category_qwikets where \`${field}\`>='${time}' and test='${test}' `;
+        result = await query(`SELECT * from pov_category_qwikets where \`${field}\`>=? and test=? `, [time, test]);
+    }
+    else {
+        sql = `SELECT * from pov_category_qwikets where  test='${test}' `;
+        result = await query(`SELECT * from pov_category_qwikets where test=? `, [test]);
+    }
+    console.log(sql)
+    return result;
+}
+
+const primaryThreadXid = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { threadid: qThreadid, } = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "primaryThreadXid");
+    let table = splitQwiketid(qThreadid);
+    sql = `SELECT xid as thread_xid FROM \`${table}\` where threadid='${qThreadid}' order by reshare desc limit 1`;
+    let rows = await query(`SELECT xid as thread_xid FROM \`${table}\` where threadid=? order by reshare desc limit 1`, [qThreadid]);
+    console.log(sql);
+    return rows['thread_xid'];
+}
+const splitTable = (table, qwiketid) => {
+
+    // let table = 'pov_threads_view';
+    l("splitTable", table, qwiketid)
+    const e = qwiketid.split('-slug-');//explode('-slug-',$qwiketid);
+    if (e.length > 1) {
+        table += e[0];
+    } else {
+        e = qwiketid.split('$-');
+
+        if (e.length > 1) {
+            table += e[0];
+        }
+    }
+    return table;
+}
+const tableByXid = (xid) => {
+
+    // let table = 'pov_threads_view';
+    l("splitTable", table, qwiketid)
+    let table = 'pov_threads_view';
+    if (xid >= 2000000000)
+        table = 'pov_threads_view1';
+    if (xid >= 3000000000)
+        table = 'pov_threads_view2';
+    if (xid >= 4000000000)
+        table = 'pov_threads_view3';
+    if (xid >= 5000000000)
+        table = 'pov_threads_view4';
+    if (xid >= 6000000000)
+        table = 'pov_threads_view5';
+    if (xid >= 7000000000)
+        table = 'pov_threads_view51';
+    return table;
+}
+
+
+const getQwiket = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { xid, qThreadid } = input
+    l("getQwiket", js(input))
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "primaryThreadXid");
+    let table = splitTable('pov_threads_view', qThreadid);
+    sql = `SELECT * FROM \`${table}\` where xid=${xid} limit 1' `;
+    result = await query(`SELECT * FROM \`${table}\` where xid=? limit 1`, [xid]);
+    console.log(sql);
+    return result[0];
+}
+const getUser = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { identity } = input
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "primaryThreadXid");
+
+    sql = `SELECT username,user_name,profileurl FROM pov_users where identity='${identity}' limit 1' `;
+    result = await query(`SELECT username,user_name,profileurl FROM pov_users where identity=? limit 1`, [identity]);
+    console.log(sql);
+    return result[0];
+}
+const getQ = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { key } = input
+    l("getQ", js(input))
+    let sql, result;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "primaryThreadXid");
+    let table = splitTable('q', key);
+    sql = `SELECT value FROM \`${table}\` where key=${key} limit 1' `;
+    result = await query(`SELECT value FROM \`${table}\` where \`key\`=? limit 1`, [key]);
+    console.log(sql);
+    return result && result.length ? result[0]['value'] : null;
+}
+const trimCategoryQwikets = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { field, test } = input
+    let sql, result;
+    const time = Date.now() | 1000 | 0 - 7 * 24 * 3600;
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+    sql = `DELETE FROM pov_category_qwikets where time < ${time} ' `;
+    result = await query(`DELETE FROM pov_category_qwikets where time < ?`, [time]);
+    console.log(sql);
+}
+
+const fetchChannelPostsSince = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { time, forum } = input
+    let sql, result;
+    //$table= tableByXid($thread_xid);
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+    sql = `SELECT * FROM pov_channel_posts where forum='${forum}' and createdat> '${time}' `;
+    result = await query(`SELECT * FROM pov_channel_posts where forum=? and createdat> ?`, [forum, time]);
+    console.log(sql);
+    return result;
+}
+const getThreadQwiket = async ({
+    threadid,
+    sessionid,
+    username,
+    input,
+    dbServerName,
+}) => {
+    let { thread } = input
+    let sql, result;
+    //$table= tableByXid($thread_xid);
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+    sql = `SELECT * FROM pov_threads_map2 where thread='${thread}' `;
+    result = await query(`SELECT * FROM pov_threads_map2 where thread=? `, [thread]);
+    l(chalk.yellow(js(result)))
+    console.log(sql);
+    if (result&&result.length>0) {
+        const qThreadid = result[0]['threadid'];
+        l('qThredid', qThreadid)
+        let table = splitTable('pov_threads_view', qThreadid);
+        sql = `SELECT * FROM \`${table}\` where threadid='${qThreadid}' order by reshare desc limit 1`;
+        result = await query(`SELECT * FROM \`${table}\` where threadid=? order by reshare desc limit 1 `, [qThreadid]);
+        return result;
+    }
+    else
+        return 0;
+}
+
 export default {
     migrateQwiketRecords,
     longMigrateQwiketRecords,
@@ -2710,4 +2916,13 @@ export default {
     outputQueue,
     fetchOutputQueue,
     remove,
+    cacheTimestamps,
+    fetchQwiketsIndexedSince,
+    primaryThreadXid,
+    getQwiket,
+    getUser,
+    getQ,
+    trimCategoryQwikets,
+    fetchChannelPostsSince,
+    getThreadQwiket
 }

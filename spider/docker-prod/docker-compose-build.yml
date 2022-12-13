@@ -1,0 +1,49 @@
+version: "3.5"
+services:
+    lake-spider-dev:
+        image: "hudsonwilde/lake-spider-dev"
+        stdin_open: true # docker run -i
+        tty: true        # docker run -t
+        ports:
+            - 3700:3202
+            - 9279:9229
+        build:
+            context: .
+            dockerfile: dev.Dockerfile
+        container_name: lake-server-dev
+        volumes:
+            - "..:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            
+        env_file:
+            - prod.env
+        restart: unless-stopped
+    
+    spider-autofeed-prod1:
+        image: "hudsonwilde/lake-spider-prod"
+        #stdin_open: true # docker run -i
+       # tty: true        # docker run -t
+      
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: lake-autofeed-prod1
+        volumes:
+            - "..:/home/app"
+        working_dir: /home/app
+        environment:
+            - DB_USER
+            - DB_PASSWORD
+            - CDNKEY=5c2c11b864e624852159 
+            - AUTO_FEED2022=1
+            - TIMEOUT=300000
+            - FEED_TIMEOUT=330000
+            
+        env_file:
+            - prod.env
+        restart: unless-stopped
+   
