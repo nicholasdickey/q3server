@@ -31,7 +31,8 @@ const {
 } = feedActions
 const {
     validateQwiketCache,
-    validatePostsCache
+    validatePostsCache,
+    validateCatsCache
 } = qwiketActions;
 import { l, chalk, allowLog, sleep, js } from "./lib/common.js"
 //import { loadCDN } from "./cdn.mjs"
@@ -348,6 +349,17 @@ if (process.env.CACHE_POST) {
     const forum=process.env.CACHE_POST;
     await validatePostsCache({
         forum,
+        sessionid: "server.js",
+        threadid: `server.js11-${threadid1}`,
+        username: "server.js",
+    })
+    dbEnd(`server.js11-${threadid1}`)
+    exit();
+}
+if (process.env.CACHE_CATS) {
+    allowLog()
+    await validateCatsCache({
+  
         sessionid: "server.js",
         threadid: `server.js11-${threadid1}`,
         username: "server.js",

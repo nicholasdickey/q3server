@@ -40,7 +40,7 @@ async function reindex() {
                 port,
                 logContext: { sessionid, threadid, username },
             });
-
+        l("call ft_create alerts")
         await redis.ft_create({
             server,
             port,

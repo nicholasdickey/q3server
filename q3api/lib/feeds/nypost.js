@@ -16,6 +16,7 @@ function func({
     try {
         //========================"
         log("rule");
+       //l("item:",item)
         item.published_time = (Date.now() / 1000) | 0; //+=minutes*60
         let b = $(`.entry-content`);
         l("html:",b.html())

@@ -41,7 +41,11 @@ function func({
         )
             return reject(item);
         //  log("accepted:", { title, author: item.author });
-        item.body = $(".ev-meter-content-class").html();
+        let b = $(".ev-meter-content-class");
+        b.find(".conntent-banner").remove();
+        b.find(".banner_small").remove();
+        b.find(".mobile-banner").remove();
+        item.body=b.html();
         resolve(item);
         //==================================================================================
     } catch (x) {

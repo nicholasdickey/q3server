@@ -973,12 +973,17 @@ const cacheQwiket = async ({
 }) => {
     const { qwiket, days, primary, cache } = input;
     const qThreadid = qwiket['threadid'];
-    if (!qThreadid)
+    l(12,js(qwiket))
+    if (!qThreadid){
+        l("no threadid, return false")
         return false;
+    }
 
     const url = qwiket['url'];
-    if (!url)
+    if (!url){
+        l("no url, return false")
         return false;
+    }
 
 
     let reshare = qwiket['reshare'];
@@ -1005,7 +1010,6 @@ const cacheQwiket = async ({
             qwiket['body'] = q['body'];
         }
     }
-
     let thread_xid = qwiket['xid'];
 
     if (!primary && (reshare < 100)) {
@@ -1018,8 +1022,6 @@ const cacheQwiket = async ({
         });
 
     }
-
-
     let publishedTime = qwiket['published_time'];
     let sharedTime = qwiket['shared_time'];
 
@@ -1030,7 +1032,7 @@ const cacheQwiket = async ({
     if (!qwiket['date'] && sharedTime)
         qwiket['date'] = sharedTime;
 
-    qwiket['cat'] = shortname;
+    qwiket['cat'] = qwiket['shortname'];
 
     if (!qwiket['identity'])
         qwiket['identity'] = '00e98e251067b27107189bd7c8316ba2';
@@ -1055,7 +1057,6 @@ const cacheQwiket = async ({
             qwiket['s_pu'] = qwiket['shared_by_profileurl'];
         }
     }
-
     //note, skipped setting qwiket['channel'], makes no sense
     delete qwiket.log;
     delete qwiket.rss;
@@ -1072,7 +1073,7 @@ const cacheQwiket = async ({
     const jsonKey = 'ntjson-' + thread_xid;
     const jsonQwiket = JSON.stringify(qwiket);
 
-    l(chalk.green.bold("processing qwiket shortname:", shortname, ";threadid:", qwiket.threadid))
+    l(chalk.green.bold("processing qwiket shortname:", qwiket['shortname'], ";threadid:", qwiket.threadid))
     await cache.setex(`tview-username-${thread_xid}`, days * 24 * 3600, user['username']);
     await cache.setex(jsonKey, days * 24 * 3600, jsonQwiket);
     await cache.setex(`txid-${qwiket['threadid']}`, days * 24 * 3600, thread_xid);
@@ -1147,6 +1148,7 @@ const validateQwiketCache = async ({
                     threadid,
                     username
                 })
+                qwiket.shortname=shortname;
 
                 const result = await cacheQwiket({
                     sessionid, threadid, username,
@@ -1258,14 +1260,18 @@ const validatePostsCache = async ({
         for (let i = 0; i < posts.length; i++) {
             const post = posts[i];
             l("got post:",js(post))
+            try{
             post['xid'] = post['qpostid']
             const thread = post['thread'];
+            l("before getThreadQwiket")
             const threadQwiket = await dbQwiket.getThreadQwiket({
                 input: { thread },
                 sessionid,
                 threadid,
                 username
             })
+            l("after getThreadQwiket")
+          
             const result = await cacheQwiket({
                 sessionid, threadid, username,
                 input: {
@@ -1275,28 +1281,37 @@ const validatePostsCache = async ({
                     primary: 1 // no need to look for primary, already taken care of in getThreadQwiket
                 }
             })
-            if (!result)
+            l("after cacheQwiket")
+            if (!result){
+                l("no result, continue;")
                 continue;
+            }
             post['category_xid'] = threadQwiket['category_xid'];
             post['thread_image'] = threadQwiket['image'];
             post['thread_author'] = threadQwiket['author'];
             post['thread_xid'] = threadQwiket['xid'];
-            if ([pst['url']] == "http://qwiket.com/context/usconservative/topic/nro-is-moving-to-facebook-comments") {
+            if ([post['url']] == "http://qwiket.com/context/usconservative/topic/nro-is-moving-to-facebook-comments") {
                 post['url'] = "http://qwiket.com/context/topic/nro-is-moving-to-facebook-comments";
             }
             const pjson = JSON.stringify(post)
             const tidKey = `tid-${post['xid']}`;
-            await cache.setex(tidKey, 7*24 * 3600, qwiket[xid])
-            const channelPjsonKey = `pjson-${forumn}-${post['xid']}`;
-            await cache.setex(channelPjsonKey, 7*24 * 3600);
-            const v6Key = `pjson-${p[id]}`;
+            await cache.setex(tidKey, 7*24 * 3600, threadQwiket['xid'])
+            const channelPjsonKey = `pjson-${forum}-${post['xid']}`;
+            l(chalk.bold.green(`SETEX ${channelPjsonKey} ${pjson}`))
+            await cache.setex(channelPjsonKey, 7*24 * 3600,pjson);
+            const v6Key = `pjson-${post['id']}`;
             await cache.setex(v6Key, 7 * 24 * 3600, pjson);
             const lpxidKey = `lpxids-${forum}`;
-            await cache.zadd(lpxidKey, post['createdat'], p['xid']);
+            await cache.zadd(lpxidKey, post['createdat'], post['xid']);
             await cache.zremrangebyrank(lpxidKey, 0, -1 * 1000);
             const disqKey = `disq-tids-${forum}`;
-            await cache.zadd(disqKey, post['createdat'], qwiket['xid']);
+            await cache.zadd(disqKey, post['createdat'], threadQwiket['xid']);
             await cache.zremrangebyrank(disqKey, 0, -1 * 1000);
+        }
+        catch(x){
+            l(chalk.red.bold(x))
+        }
+
             l("end post processing")
         }
         await cache.set(`cache-timestamps-posts-${forum}`, nextTime);
@@ -1324,7 +1339,7 @@ const validateCatsCache = async ({
     if (!dbCacheRecord)
         return;
 
-    let memoryTime = await cache.get(`cache-timestamps-posts-${forum}`);
+    let memoryTime = await cache.get(`cache-timestamps-cats`);
     if (!memoryTime)
         memoryTime = 0;
     l(
@@ -1340,9 +1355,35 @@ const validateCatsCache = async ({
 
 
         let nextTime = Date.now() / 1000 | 0;
+        let cats = await dbQwiket.fetchCats({ //channel posts has 24 hours of posts
+            sessionid,
+            threadid,
+            username
+        })
+        if (!cats)
+            return;
+        for(let i=0;i<cats.length;i++){
+            let cat=cats[i];
+            l('cat:',cat['shortname']);
+            cat.alias=await dbQwiket.getAlias({ //channel posts has 24 hours of posts
+                sessionid,
+                threadid,
+                username,
+                input:{shortname:cat['shortname']}
+            })
+            cat.feed=cat.feed?cat.feed:0;
+            cat.feed_xid=cat.feed_xid?cat.feed_xid:0;
+            const jsonCat=JSON.stringify(cat);
+            l(chalk.yellow(jsonCat));
+            await cache.sadd('categories',cat['shortname']);
+            await cache.setex(`cat-${cat['shortname']}`,365*24*3600,cat['path']); 
+            await cache.setex(`catIcon-${cat['shortname']}`,365*24*3600,cat['icon']); 
+            await cache.setex(`catJson-${cat['shortname']}`,365*24*3600,jsonCat);
+        }
+        await cache.setex(`cache-timestamps-cats`,365*24*3600, nextTime);
     }
+    
 }
-
     
 export default {
     indexDisqusComments,
@@ -1354,5 +1395,6 @@ export default {
     longMigrateQwikets,
     longMigrateTable,
     validateQwiketCache,
-    validatePostsCache
+    validatePostsCache,
+    validateCatsCache
 };

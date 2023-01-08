@@ -20,7 +20,7 @@ services:
             - CDNKEY=5c2c11b864e624852159 
             
         env_file:
-            - /home/nick/q3api/q3api-dev.env
+            - q3api-dev.env
         restart: unless-stopped
         networks:
             - q3api-dev

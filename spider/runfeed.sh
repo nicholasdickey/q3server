@@ -34,7 +34,7 @@
 #node ./runFeed.js babylonbee https://babylonbee.com/news/south-dakota-passes-controversial-law-that-mountain-lions-cannot-compete-in-womens-sports babylonbee
 #node ./runFeed.js americanthinker https://www.americanthinker.com/articles/2021/03/why_election_integrity_matters.html americanthinker
 # OUTPUTFILE=1 NOTOR=1  node ./runFeed.js newsbusters https://www.newsbusters.org/blogs/nb/clay-waters/2022/05/29/new-york-times-upset-gop-punishes-woke-corporations-financiers newsbusters 
- #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nypost https://nypost.com/2022/05/28/uvalde-school-police-chief-pete-arredondo-is-a-coward-neighbor/ nypost 
+OUTPUTFILE=1 NOTOR=1  node ./runFeed.js nypost https://nypost.com/2022/11/11/sex-offender-gets-life-in-prison-for-susie-zhaos-murder/ nypost 
 
 #OUTPUTFILE=1 NOTOR=1  node ./runFeed.js bigleaguepolitics https://bigleaguepolitics.com/united-states-government-announces-additional-600-million-arms-package-to-ukraine/ bigleaguepolitics
 
@@ -65,4 +65,4 @@
 
 #CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js townhall https://townhall.com/columnists/isabellemorales/2022/11/29/house-gop-should-ban-earmarks-n2616470/ townhall
 #CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js dailywire https://www.dailywire.com/news/female-co-hosts-tag-team-don-lemon-for-daring-to-defend-mens-soccer-team/ dailywire
-CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js dailysignal https://www.dailysignal.com/2022/12/03/elon-musk-exposes-inside-story-twitters-crackdown-hunter-biden-laptop-2020-election/ dailysignal
+#CDNKEY=5c2c11b864e624852159 NOTOR=1 OUTPUTFILE=1 node ./runFeed.js dailysignal https://www.dailysignal.com/2022/12/03/elon-musk-exposes-inside-story-twitters-crackdown-hunter-biden-laptop-2020-election/ dailysignal

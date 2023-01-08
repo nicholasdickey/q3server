@@ -2883,14 +2883,52 @@ const getThreadQwiket = async ({
     console.log(sql);
     if (result&&result.length>0) {
         const qThreadid = result[0]['threadid'];
+        const shortname=result[0]['shortname']
         l('qThredid', qThreadid)
         let table = splitTable('pov_threads_view', qThreadid);
-        sql = `SELECT * FROM \`${table}\` where threadid='${qThreadid}' order by reshare desc limit 1`;
-        result = await query(`SELECT * FROM \`${table}\` where threadid=? order by reshare desc limit 1 `, [qThreadid]);
-        return result;
+        sql = `SELECT *,'${shortname}' as shortname FROM \`${table}\` where threadid='${qThreadid}' order by reshare desc limit 1`;
+        result = await query(`SELECT *,'${shortname}' as shortname FROM \`${table}\` where threadid=? order by reshare desc limit 1 `, [qThreadid]);
+        return result[0];
     }
     else
         return 0;
+}
+const fetchCats = async ({
+    threadid,
+    sessionid,
+    username,
+    dbServerName,
+}) => {
+   
+    let sql, result;
+    //$table= tableByXid($thread_xid);
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+
+    sql = `SELECT distinct c.xid as category_xid,c.validated,c.published,c.path,c.entity, c.shortname,c.description,c.text,c.identity,c.icon,c.icon_src,c.background,c.leaf, c.approval_status as approved
+    from pov_categories c`;
+    result = await query(`SELECT distinct c.xid as category_xid,c.validated,c.published,c.path,c.entity, c.shortname,c.description,c.text,c.identity,c.icon,c.icon_src,c.background,c.leaf, c.approval_status as approved
+    from pov_categories c`);
+    console.log(sql);
+    return result;
+}
+const getAlias = async ({
+    threadid,
+    sessionid,
+    username,
+    dbServerName,
+    input
+}) => {
+   
+    let sql, result;
+    const {shortname}=input;
+    //$table= tableByXid($thread_xid);
+    let query = await dbGetQuery("povdb", threadid, dbServerName, "fetchQwiketsIndexedSince");
+
+    sql = `SELECT alias from pov_aliases where shortname='${shortname}'`;
+ 
+    result = await query(`SELECT alias from pov_aliases where shortname=?`,[shortname]);
+    console.log(sql);
+    return result&&result.length?result[0]['alias']:null;
 }
 
 export default {
@@ -2924,5 +2962,7 @@ export default {
     getQ,
     trimCategoryQwikets,
     fetchChannelPostsSince,
-    getThreadQwiket
+    getThreadQwiket,
+    fetchCats,
+    getAlias
 }
